@@ -16,9 +16,9 @@ function rgb(array) {
 function drawColorsMap(protos, cards) {
     const features = protos[0].length;
 
-    const space = 20;
+    const space = 50;
     const chartWidth = 600;
-    const chartHeight = (features + 1) * (chartWidth + space);
+    const chartHeight = (features + 1) * (chartWidth + space) + space;
 
     const cardGrayValues = toColorValues(cards.map(c => Number(c)));
     const svg = d3.select('#chart')
@@ -37,11 +37,18 @@ function drawColorsMap(protos, cards) {
     });
 
     cardGray = svg.append('g').attr('class', 'card-gray');
+    svg.append('text')
+        .attr('x', 0)
+        .attr('y', 40)
+        .attr('fill', 'black')
+        .text('Cardinality');
+
     cardGray
         .selectAll('rect')
         .data(nodes)
         .enter()
         .append('rect')
+        .attr('transform', 'translate(0, ' + space + ')')
         .attr('stroke', '#d9d9d9')
         .attr('x', function (node) {
             return node.x * nodeSize;
@@ -55,10 +62,16 @@ function drawColorsMap(protos, cards) {
             return rgb([node.value, node.value, node.value]);
         });
 
+
     for (feature = 0; feature < features; feature++) {
+        svg.append('text')
+            .attr('x', 0)
+            .attr('y', 40 + (chartWidth + space) * (feature + 1))
+            .attr('fill', 'black')
+            .text('Feature: ' + (feature + 1));
         featureGray = svg.append('g')
             .attr('class', 'feature-' + feature)
-            .attr('transform', 'translate(0, ' + ((chartWidth + space) * (feature + 1)) + ')')
+            .attr('transform', 'translate(0, ' + (space + (chartWidth + space) * (feature + 1)) + ')')
         const featureNodes = toColorValues(protos.map(p => p[feature])).map((value, index) => {
             return {
                 x: index % cardSize,
