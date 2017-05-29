@@ -33,11 +33,18 @@
                     <div class="panel-body">
                         <div class="form-group">
                             <label for="proto">Prototype's centroids</label>
-                            <input type="file" class="form-control" name="proto" id="proto"/>
+                            <input type="file" class="form-control" name="proto" id="proto" />
                         </div>
                         <div class="form-group">
                             <label for="card">Cardinality</label>
-                            <input type="file" class="form-control" name="card" id="card"/>
+                            <input type="file" class="form-control" name="card" id="card" />
+                        </div>
+                        <div class="form-group">
+                            <label for="chartType">Chart Type</label>
+                            <select class="form-control" id="chartType">
+                                <option value="color">Grid Color Chart</option>
+                                <option value="bar">Grid Bar Chart</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <button onclick="draw()" type="button" class="btn btn-primary">Draw</button>

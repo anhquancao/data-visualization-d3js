@@ -100,7 +100,103 @@ function drawColorsMap(protos, cards) {
 }
 
 
+function drawBarChart(protos, cards) {
+    var cards = cards;
+    
+    var numberOfFeature = protos[0].length;
+    var totalBox = protos.length;
+    var numberOfBox = 10;
+
+    var boxSize = 60;
+
+    var gridHeight = boxSize * numberOfBox;
+    var gridWidth = boxSize * numberOfBox;
+    var chartHeight = boxSize - 10;
+    
+    //Scaling for bar chart
+    var maxValue = 0;
+    for(index = 0; index < totalBox; index++){
+        tempMax = d3.max(protos[index], function(d){
+            return +d;
+        });
+        if(tempMax > maxValue){
+            maxValue = tempMax;
+        }
+    }
+    
+    var scale = d3.scale.linear().domain([0, maxValue]).range([0,chartHeight]);    
+    
+    //Draw Grid    
+    var grid = d3.selectAll("#chart").append("svg").attr("height", gridHeight + 50).attr("width", gridWidth);
+    
+    grid.append("text").text("Bar Chart");
+
+    grid.selectAll("rect")
+        .data(protos)
+        .enter()
+        .append("rect")
+        .attr("height", boxSize)
+        .attr("width", boxSize)
+        .attr("x", function(d,i){
+            return (i%numberOfBox) * boxSize;
+        })
+        .attr("y", function(d,i){
+            return (Math.floor(i/numberOfBox)) * boxSize;
+        })
+        .style("stroke", "#ffffff")
+        .style("fill", "rgba(0,0,0,.25)");
+    
+    //Draw Bar Chart in each grid
+    for(index = 0; index < totalBox; index++){
+        grid.selectAll("empty")
+            .data(protos[index])
+            .enter()
+            .append("rect")
+            .attr("height", function (d) {
+                return scale(d);
+            })
+            .attr("width", (boxSize-6)/numberOfFeature)
+            .attr("x", function (d, i) {
+                return ((i * 15))+((index%numberOfBox) * boxSize)+1;
+            })
+            .attr("y", function (d) {
+                return (chartHeight - scale(d))+((Math.floor(index/numberOfBox)) * boxSize)+5;
+            })
+            .style("fill", function(d,i){
+                return "rgba("+i*55+","+i*75+","+i*25+",1)";
+            });
+    };
+    
+    
+//    var cardsChart = d3.selectAll("#chart").append("svg").attr("height", "300px").attr("width", "100%");
+//    cardsChart.selectAll("rect").data(cards).enter().append("rect")
+//        .attr("height", function (d) {
+//            return scale(d);
+//        })
+//        .attr("width", "30px")
+//        .attr("x", function (d, i) {
+//            return (i * 20) + 25;
+//        })
+//        .attr("y", function (d) {
+//            return chartHeight - scale(d);
+//        });
+    
+    //    var feature = [];
+    //    for (var i = 0; i < protos.length; i++) {
+    //        for ()
+    //        for (var j = 0; j < protos[i].length; j++) {
+    //            feature = push(protos[i][j]);
+    //        }
+    //}
+
+}
+
+
+
 function draw() {
+    $("#chart").html("");
+    var chartType = $("#chartType").val();
+    console.log(chartType);
     let protoStr = '';
     let cardStr = '';
     readAsync('proto').then((content) => {
@@ -111,7 +207,16 @@ function draw() {
             let protos = protoStr.split('\n').filter(e => e !== '').map(p => p.split(','));
             let cards = cardStr.split('\n').filter(e => e !== '').map(p => p.split(','));
 
-            drawColorsMap(protos, cards);
+            switch(chartType){
+                case "color":
+                    console.log("Draw Grid Color");
+                    drawColorsMap(protos, cards);
+                    break;
+                case "bar":
+                    console.log("Draw Grid Bar");
+                    drawBarChart(protos, cards)        
+                    break;     
+            }
         });
     });
 }
