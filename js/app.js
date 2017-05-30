@@ -99,37 +99,43 @@ function drawColorsMap(protos, cards) {
     }
 }
 
+function getColorForBarChart(index, numberOfFeature) {
+    var baseColorCode = Math.round(255 / numberOfFeature);
+    var rgbValue = index * baseColorCode;
+    return "rgba(" + rgbValue + "," + 200 + "," + 150 + ",1)";
+}
 
 function drawBarChart(protos, cards) {
     var cards = cards;
-    
+
     var numberOfFeature = protos[0].length;
     var totalBox = protos.length;
-    var numberOfBox = 10;
+    var numberOfBoxAtSide = Math.round(Math.sqrt(totalBox));
 
     var boxSize = 60;
+    var gridMargin = 30;
 
-    var gridHeight = boxSize * numberOfBox;
-    var gridWidth = boxSize * numberOfBox;
+    var gridHeight = boxSize * numberOfBoxAtSide;
+    var gridWidth = boxSize * numberOfBoxAtSide;
     var chartHeight = boxSize - 10;
-    
+
     //Scaling for bar chart
     var maxValue = 0;
-    for(index = 0; index < totalBox; index++){
-        tempMax = d3.max(protos[index], function(d){
+    for (index = 0; index < totalBox; index++) {
+        tempMax = d3.max(protos[index], function (d) {
             return +d;
         });
-        if(tempMax > maxValue){
+        if (tempMax > maxValue) {
             maxValue = tempMax;
         }
     }
-    
-    var scale = d3.scale.linear().domain([0, maxValue]).range([0,chartHeight]);    
-    
+
+    var scale = d3.scale.linear().domain([0, maxValue]).range([0, chartHeight]);
+
     //Draw Grid    
     var grid = d3.selectAll("#chart").append("svg").attr("height", gridHeight + 50).attr("width", gridWidth);
-    
-    grid.append("text").text("Bar Chart");
+
+    grid.append("text").attr("x", "10").attr("y", "20").text("Bar Chart").style("color", "black");
 
     grid.selectAll("rect")
         .data(protos)
@@ -137,17 +143,17 @@ function drawBarChart(protos, cards) {
         .append("rect")
         .attr("height", boxSize)
         .attr("width", boxSize)
-        .attr("x", function(d,i){
-            return (i%numberOfBox) * boxSize;
+        .attr("x", function (d, i) {
+            return (i % numberOfBoxAtSide) * boxSize;
         })
-        .attr("y", function(d,i){
-            return (Math.floor(i/numberOfBox)) * boxSize;
+        .attr("y", function (d, i) {
+            return (Math.floor(i / numberOfBoxAtSide)) * boxSize + gridMargin;
         })
-        .style("stroke", "#ffffff")
-        .style("fill", "rgba(0,0,0,.25)");
-    
+        .style("stroke", "#000")
+        .style("fill", "rgba(255,255,255,0.25)");
+
     //Draw Bar Chart in each grid
-    for(index = 0; index < totalBox; index++){
+    for (index = 0; index < totalBox; index++) {
         grid.selectAll("empty")
             .data(protos[index])
             .enter()
@@ -155,32 +161,64 @@ function drawBarChart(protos, cards) {
             .attr("height", function (d) {
                 return scale(d);
             })
-            .attr("width", (boxSize-6)/numberOfFeature)
+            .attr("width", (boxSize - 6) / numberOfFeature)
             .attr("x", function (d, i) {
-                return ((i * 15))+((index%numberOfBox) * boxSize)+1;
+                return ((i * 15)) + ((index % numberOfBoxAtSide) * boxSize) + 1;
             })
             .attr("y", function (d) {
-                return (chartHeight - scale(d))+((Math.floor(index/numberOfBox)) * boxSize)+5;
+                return (chartHeight - scale(d)) + ((Math.floor(index / numberOfBoxAtSide)) * boxSize) + 5 + gridMargin;
             })
-            .style("fill", function(d,i){
-                return "rgba("+i*55+","+i*75+","+i*25+",1)";
+            .style("fill", function (d, i) {
+                return getColorForBarChart(i, numberOfFeature);
             });
     };
-    
-    
-//    var cardsChart = d3.selectAll("#chart").append("svg").attr("height", "300px").attr("width", "100%");
-//    cardsChart.selectAll("rect").data(cards).enter().append("rect")
-//        .attr("height", function (d) {
-//            return scale(d);
-//        })
-//        .attr("width", "30px")
-//        .attr("x", function (d, i) {
-//            return (i * 20) + 25;
-//        })
-//        .attr("y", function (d) {
-//            return chartHeight - scale(d);
-//        });
-    
+
+    //Draw Legend
+
+    var legendLeftMargin = 50;
+    var legend = d3.selectAll("#chart").append("svg").attr("height", numberOfFeature * (15 + numberOfFeature) + 20).attr("width", gridWidth);
+
+    legend.append("text")
+        .attr('x', 0)
+        .attr('y', 15)
+        .attr('fill', 'black')
+        .text('LEGEND');
+
+    legend.selectAll("empty")
+        .data(protos[0])
+        .enter()
+        .append("rect")
+        .attr("height", "13")
+        .attr("width", "50")
+        .attr("x", legendLeftMargin + 30)
+        .attr("y", function (d, i) {
+            return (i * 15) + 20;
+        })
+        .style("fill", function (d, i) {
+            return getColorForBarChart(i, numberOfFeature);
+        });
+
+    for (index = 0; index < numberOfFeature; index++) {
+        legend.append('text')
+            .attr('x', 10)
+            .attr('y', (index * 15) + 13 + 20)
+            .attr('fill', 'black')
+            .text('Feature ' + (index + 1) + ':');
+    }
+
+    //    var cardsChart = d3.selectAll("#chart").append("svg").attr("height", "300px").attr("width", "100%");
+    //    cardsChart.selectAll("rect").data(cards).enter().append("rect")
+    //        .attr("height", function (d) {
+    //            return scale(d);
+    //        })
+    //        .attr("width", "30px")
+    //        .attr("x", function (d, i) {
+    //            return (i * 20) + 25;
+    //        })
+    //        .attr("y", function (d) {
+    //            return chartHeight - scale(d);
+    //        });
+
     //    var feature = [];
     //    for (var i = 0; i < protos.length; i++) {
     //        for ()
@@ -207,15 +245,15 @@ function draw() {
             let protos = protoStr.split('\n').filter(e => e !== '').map(p => p.split(','));
             let cards = cardStr.split('\n').filter(e => e !== '').map(p => p.split(','));
 
-            switch(chartType){
+            switch (chartType) {
                 case "color":
                     console.log("Draw Grid Color");
                     drawColorsMap(protos, cards);
                     break;
                 case "bar":
                     console.log("Draw Grid Bar");
-                    drawBarChart(protos, cards)        
-                    break;     
+                    drawBarChart(protos, cards)
+                    break;
             }
         });
     });
