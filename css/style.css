@@ -7,3 +7,22 @@
     position: fixed;
     top: 30px;
 }
+
+#chart {
+    overflow: scroll;
+    max-width: 700px;
+    max-height: 500px;
+}
+
+.node:hover {
+    outline: 1px solid black;
+    opacity: 0.8;
+}
+#modal-info text {
+  fill: black;
+  font: 10px sans-serif;
+  text-anchor: end;
+}
+#modal-info .bar {
+ fill: steelblue;
+}
