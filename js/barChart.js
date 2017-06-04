@@ -1,4 +1,4 @@
-function drawBarChart(protos, cards) {
+function drawBarChart(protos, cards, titles) {
     var cards = cards;
 
     var numberOfFeature = protos[0].length;
@@ -91,13 +91,16 @@ function drawBarChart(protos, cards) {
             return getColorForBarChart(i, numberOfFeature);
         });
 
-    for (index = 0; index < numberOfFeature; index++) {
-        legend.append('text')
-            .attr('x', 10)
-            .attr('y', (index * 15) + 13 + 20)
-            .attr('fill', 'black')
-            .text('Feature ' + (index + 1) + ':');
-    }
+
+    legend.selectAll("empty").data(titles).enter().append('text')
+        .attr('x', 10)
+        .attr('y', function (d, i) {
+            return (15 * i) + 12 + 20;
+        })
+        .attr('fill', 'black')
+        .text(function (d) {
+            return d + ":";
+        });
 
     //    var cardsChart = d3.selectAll("#chart").append("svg").attr("height", "300px").attr("width", "100%");
     //    cardsChart.selectAll("rect").data(cards).enter().append("rect")

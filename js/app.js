@@ -30,12 +30,12 @@ function showInput(value) {
             $('#i-height').show();
             break;
         case "bar":
+            $('#i-proto').show();
             $('#i-card').show();
             $('#i-title').show();
             $('#i-color').hide();
             $('#i-width').hide();
             $('#i-height').hide();
-
             break;
         case "pie":
             $('#i-proto').show();
@@ -92,8 +92,7 @@ function draw() {
                         }
                         break;
                     case "bar":
-
-                        drawBarChart(protos, cards)
+                        drawBarChart(protos, cards, titles);
                         break;
                     case "pie":
                         drawPieChart(protos, cards, titles, gridHeight, gridWidth);
