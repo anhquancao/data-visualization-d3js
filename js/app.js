@@ -18,6 +18,48 @@ function hexToRgb(hex) {
     } : null;
 }
 
+function showInput(value) {
+    switch (value) {
+        case "color":
+            console.log(value);
+            $('#i-proto').show();
+            $('#i-card').show();
+            $('#i-title').show();
+            $('#i-color').show();
+            $('#i-width').show();
+            $('#i-height').show();
+            break;
+        case "bar":
+            $('#i-card').show();
+            $('#i-title').show();
+            $('#i-color').hide();
+            $('#i-width').hide();
+            $('#i-height').hide();
+
+            break;
+        case "pie":
+            $('#i-proto').show();
+            $('#i-card').show();
+            $('#i-title').show();
+            $('#i-color').hide();
+            $('#i-width').show();
+            $('#i-height').show();
+            break;
+        default:
+            $('#i-card').hide();
+            $('#i-title').hide();
+            $('#i-color').hide();
+            $('#i-width').hide();
+            $('#i-height').hide();
+            $('#i-proto').hide();
+    }
+}
+
+showInput("none");
+$('#chartType').on('change', function () {
+    console.log(this.value);
+    showInput(this.value);
+});
 
 function draw() {
     $("#chart").html("");
@@ -29,7 +71,7 @@ function draw() {
     let cardStr = '';
     readAsync('title').then((content) => {
         let titleString = content;
-        
+
         readAsync('proto').then((content) => {
             protoStr = content;
             readAsync('card').then((content) => {
@@ -40,7 +82,7 @@ function draw() {
                 let titles = titleString.split('\n').filter(e => e !== '').map(p => p.split(','));
                 let color = hexToRgb($('#color').val());
                 titles = titles[0];
-            
+
                 switch (chartType) {
                     case "color":
                         if (gridHeight * gridWidth < protos.length) {
@@ -50,8 +92,11 @@ function draw() {
                         }
                         break;
                     case "bar":
-                        console.log("Draw Grid Bar");
+
                         drawBarChart(protos, cards)
+                        break;
+                    case "pie":
+                        drawPieChart(protos, cards, titles, gridHeight, gridWidth);
                         break;
                 }
             });
