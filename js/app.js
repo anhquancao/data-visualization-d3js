@@ -71,7 +71,6 @@ function draw() {
     let cardStr = '';
     readAsync('title').then((content) => {
         let titleString = content;
-
         readAsync('proto').then((content) => {
             protoStr = content;
             readAsync('card').then((content) => {
@@ -79,9 +78,18 @@ function draw() {
 
                 let protos = protoStr.split('\n').filter(e => e !== '').map(p => p.split(','));
                 let cards = cardStr.split('\n').filter(e => e !== '').map(p => p.split(','));
-                let titles = titleString.split('\n').filter(e => e !== '').map(p => p.split(','));
+                let titles = [];
+                if (titleString) {
+                    titles = titleString.split('\n').filter(e => e !== '').map(p => p.split(','));
+                    titles = titles[0];
+                } else {
+                    titles = [...Array(protos[0].length).keys()].map((d) => {
+                        return "Feature " + d;
+                    });
+                }
+
                 let color = hexToRgb($('#color').val());
-                titles = titles[0];
+                
 
                 switch (chartType) {
                     case "color":
@@ -92,7 +100,6 @@ function draw() {
                         }
                         break;
                     case "bar":
-
                         drawBarChart(protos, cards)
                         break;
                     case "pie":

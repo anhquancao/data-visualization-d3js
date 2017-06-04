@@ -9,6 +9,8 @@ function startRead(inputId, callback) {
     var file = document.getElementById(inputId).files[0];
     if (file) {
         getAsText(file, callback);
+    } else {
+        callback(null);
     }
 }
 
