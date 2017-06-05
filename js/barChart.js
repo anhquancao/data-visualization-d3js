@@ -33,6 +33,7 @@ function barChartOnClick(data, titles) {
     var scale = d3.scale.linear().domain([0, maxValue]).range([0, chartWidth]);
 
     $("#modal-info").html("");
+    $("#modal-extra-data").html("");
 
     $('#modal-zoom').modal('show');
 

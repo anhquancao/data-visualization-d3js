@@ -32,7 +32,6 @@ function calculateLine(protos, arrayData, index) {
 
     var line = d3.svg.line()
         .x(function (d, i) {
-            console.log(index);
             return scaleX(i) + ((index % numberOfBoxAtSide) * boxSize) + 5;
         })
         .y(function (d, i) {
@@ -57,22 +56,6 @@ function drawLineChart(protos, cards, titles) {
     var gridHeight = boxSize * numberOfBoxAtSide;
     var gridWidth = boxSize * numberOfBoxAtSide;
     var chartHeight = boxSize - 10;
-
-    //Scaling for line chart
-    var maxValue = 0;
-    for (index = 0; index < totalBox; index++) {
-        tempMax = d3.max(protos[index], function (d) {
-            return +d;
-        });
-        if (tempMax > maxValue) {
-            maxValue = tempMax;
-        }
-    }
-
-    //Scale X Position
-    var scaleX = d3.scale.linear().domain([0, numberOfFeature]).range([0, boxSize]);
-    //Scale Y Position
-    var scaleY = d3.scale.linear().domain([0, maxValue]).range([0, chartHeight]);
 
     //Draw Grid
     var grid = d3.selectAll("#chart").append("svg").attr("height", gridHeight + 50).attr("width", gridWidth);
@@ -105,6 +88,7 @@ function drawLineChart(protos, cards, titles) {
 
     grid.selectAll("g").data(protos).enter().append("g")
         .attr('data-array', function (d, i) {
+            console.log(d[i]);
             return d[i];
         })
         .attr('data-titles', titles)
@@ -117,7 +101,6 @@ function drawLineChart(protos, cards, titles) {
         })
         .append("path")
         .attr('d', function (d, i) {
-            console.log(i);
             return calculateLine(protos, d, i);
         })
         .attr('fill', 'none').attr('stroke-width', 1).attr('stroke', 'steelblue');
