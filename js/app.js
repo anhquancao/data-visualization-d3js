@@ -45,6 +45,14 @@ function showInput(value) {
             $('#i-width').show();
             $('#i-height').show();
             break;
+        case "line":
+            $('#i-proto').show();
+            $('#i-card').show();
+            $('#i-title').show();
+            $('#i-color').hide();
+            $('#i-width').hide();
+            $('#i-height').hide();
+            break;
         default:
             $('#i-card').hide();
             $('#i-title').hide();
@@ -104,6 +112,9 @@ function draw() {
                         break;
                     case "pie":
                         drawPieChart(protos, cards, titles, gridHeight, gridWidth);
+                        break;
+                    case "line":
+                        drawLineChart(protos, cards, titles);
                         break;
                 }
             });
