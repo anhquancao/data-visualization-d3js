@@ -1,3 +1,86 @@
+function convertArrayForDataAttr(arrayData) {
+    var stringData = "";
+    for (var i = 0; i < arrayData.length; i++) {
+        stringData = stringData + arrayData[i];
+        if (i < arrayData.length - 1) {
+            stringData = stringData + ",";
+        }
+    }
+    return stringData;
+}
+
+function convertDataAttrToArray(stringData) {
+    var arrayData = stringData.split(",");
+    return arrayData;
+}
+
+function barChartOnClick(data, titles) {
+    var numberOfFeature = data.length;
+
+    var barHeight = 20;
+    var chartHeight = barHeight * numberOfFeature;
+    var chartWidth = 300;
+    var chartLeftMargin = 100;
+
+    var maxValue = d3.max(data, function (d) {
+        return +d;
+    });
+
+    var chartModal = d3.select("#modal-info")
+        .attr("width", chartWidth + 150)
+        .attr("height", chartHeight + 20);
+
+    var scale = d3.scale.linear().domain([0, maxValue]).range([0, chartWidth]);
+
+    $("#modal-info").html("");
+
+    $('#modal-zoom').modal('show');
+
+    chartModal.selectAll("g")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("height", barHeight - 2)
+        .attr("width", function (d) {
+            return scale(d);
+        })
+        .attr("x", chartLeftMargin)
+        .attr("y", function (d, i) {
+            return barHeight * i;
+        })
+        .style("fill", function (d, i) {
+            return getColorForBarChart(i, numberOfFeature);
+        });
+
+    chartModal.selectAll("g")
+        .data(data)
+        .enter()
+        .append("text")
+        .attr("x", function (d) {
+            return chartLeftMargin + scale(d) + 32;
+        })
+        .attr("y", function (d, i) {
+            return (barHeight * i) + 12;
+        })
+        .attr("fill", "black")
+        .text(function (d) {
+            return d;
+        });
+
+    chartModal.selectAll("g")
+        .data(titles)
+        .enter()
+        .append("text")
+        .attr('x', 30)
+        .attr('y', function (d, i) {
+            return (barHeight * i) + 12;
+        })
+        .attr('fill', 'black')
+        .text(function (d) {
+            return d + ":";
+        });
+}
+
 function drawBarChart(protos, cards, titles) {
     var cards = cards;
 
@@ -47,7 +130,17 @@ function drawBarChart(protos, cards, titles) {
 
     //Draw Bar Chart in each grid
     for (index = 0; index < totalBox; index++) {
-        grid.selectAll("empty")
+        grid.append("g")
+            .attr('data-array', convertArrayForDataAttr(protos[index]))
+            .attr('data-titles', convertArrayForDataAttr(titles))
+            .on({
+                "click": function () {
+                    var data = convertDataAttrToArray(this.dataset.array);
+                    var titles = convertDataAttrToArray(this.dataset.titles);
+                    barChartOnClick(data, titles);
+                }
+            })
+            .selectAll("empty")
             .data(protos[index])
             .enter()
             .append("rect")
