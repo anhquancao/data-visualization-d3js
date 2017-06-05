@@ -103,15 +103,14 @@ function drawColorsMap(protos, cards, color, titles, gridHeight, gridWidth) {
     }
     $(".node").click(function () {
         const index = $(this).data('index');
-        console.log(index);
+        
         const proto = protos[index].map((value, index) => {
             return {
                 value: Number(value),
                 title: titles[index]
             }
         });
-        const card = cards[index];
-        console.log(proto);
+        const card = cards[index][0];
 
         const width = 300,
             barHeight = 20;
@@ -124,6 +123,7 @@ function drawColorsMap(protos, cards, color, titles, gridHeight, gridWidth) {
 
         // $('#modal-info').html(JSON.stringify(proto));
         $('#modal-zoom').modal('show');
+        $('#modal-extra-data').html("Cardinality: " + card);
 
         var chart = d3.select("#modal-info")
             .attr("width", width + 200)

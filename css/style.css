@@ -14,9 +14,10 @@
     max-height: 500px;
 }
 
-.node:hover {
+.node:hover, .nodePie:hover {
     outline: 1px solid black;
     opacity: 0.8;
+    cursor: pointer;
 }
 
 #modal-info text {
