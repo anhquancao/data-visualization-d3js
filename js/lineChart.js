@@ -1,5 +1,39 @@
 function lineChartOnClick(data, titles) {
-    return alert("Clicked");
+    var chartWidth = 300;
+    var chartHeight = 200;
+
+    $("#modal-info").html("");
+    $("#modal-extra-data").html("");
+
+    $('#modal-zoom').modal('show');
+
+    var scaleX = d3.scale.linear().domain([0, data.length]).range([0, 300]);
+    var scaleY = d3.scale.linear().domain([0, d3.max(data)]).range([0, 200]);
+
+    var chart = d3.select('#modal-info').attr("width", chartWidth + 100).attr("height", chartHeight + 100);
+
+    var line = d3.svg.line()
+        .x(function (d, i) {
+            return scaleX(i) + 20;
+        })
+        .y(function (d) {
+            return (chartHeight - scaleY(d)) + 20;
+        });
+
+//    var xAxis = d3.svg.axis().scale(scaleX).tickSize(-chartHeight).tickSubdivide(true);
+//    chart.append("svg:g")
+//        .attr("class", "x axis")
+//        .attr("transform", "translate(0," + chartHeight + ")")
+//        .call(xAxis);
+//
+//
+//    var yAxisLeft = d3.svg.axis().scale(scaleY).ticks(4).orient("left");
+//    chart.append("svg:g")
+//        .attr("class", "y axis")
+//        .attr("transform", "translate(-25,0)")
+//        .call(yAxisLeft);
+    chart.append("path").attr("d", line(data)).attr('fill', 'none').attr('stroke-width', 3).attr('stroke', 'steelblue');
+
 }
 
 function calculateLine(protos, arrayData, index) {
@@ -88,14 +122,25 @@ function drawLineChart(protos, cards, titles) {
 
     grid.selectAll("g").data(protos).enter().append("g")
         .attr('data-array', function (d, i) {
-            console.log(d[i]);
-            return d[i];
+            return d;
         })
         .attr('data-titles', titles)
         .on({
+            "mouseover": function () {
+                d3.select(this).transition()
+                    .ease("elastic")
+                    .duration("500")
+                    .style("cursor", "pointer");
+            },
+            "mouseout": function () {
+                d3.select(this).transition()
+                    .ease("elastic")
+                    .duration("500")
+                    .style("cursor", "default");
+            },
             "click": function () {
-                //                    var data = convertDataAttrToArray(this.dataset.array);
-                //                    var titles = convertDataAttrToArray(this.dataset.titles);
+                var data = convertDataAttrToArray(this.dataset.array);
+                var titles = convertDataAttrToArray(this.dataset.titles);
                 lineChartOnClick(data, titles);
             }
         })
@@ -103,5 +148,5 @@ function drawLineChart(protos, cards, titles) {
         .attr('d', function (d, i) {
             return calculateLine(protos, d, i);
         })
-        .attr('fill', 'none').attr('stroke-width', 1).attr('stroke', 'steelblue');
+        .attr('fill', 'none').attr('stroke-width', 3).attr('stroke', 'steelblue');
 }

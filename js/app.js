@@ -8,6 +8,22 @@ function getColorForBarChart(index, numberOfFeature) {
     return "rgba(" + rgbValue + "," + 200 + "," + 150 + ",1)";
 }
 
+function convertArrayForDataAttr(arrayData) {
+    var stringData = "";
+    for (var i = 0; i < arrayData.length; i++) {
+        stringData = stringData + arrayData[i];
+        if (i < arrayData.length - 1) {
+            stringData = stringData + ",";
+        }
+    }
+    return stringData;
+}
+
+function convertDataAttrToArray(stringData) {
+    var arrayData = stringData.split(",");
+    return arrayData;
+}
+
 
 function hexToRgb(hex) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
