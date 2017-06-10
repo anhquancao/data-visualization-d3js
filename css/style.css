@@ -14,7 +14,8 @@
     max-height: 500px;
 }
 
-.node:hover, .nodePie:hover {
+.node:hover,
+.nodePie:hover {
     outline: 1px solid black;
     opacity: 0.8;
     cursor: pointer;
@@ -37,4 +38,10 @@
 
 .pie {
     outline: 1px solid red;
+}
+
+.axis path {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
 }
