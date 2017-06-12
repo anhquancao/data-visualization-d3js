@@ -44,6 +44,7 @@ function showInput(value) {
             $('#i-color').show();
             $('#i-width').show();
             $('#i-height').show();
+            $("#i-more").show();
             break;
         case "bar":
             $('#i-proto').show();
@@ -52,6 +53,7 @@ function showInput(value) {
             $('#i-color').hide();
             $('#i-width').hide();
             $('#i-height').hide();
+            $("#i-more").show();
             break;
         case "pie":
             $('#i-proto').show();
@@ -60,6 +62,7 @@ function showInput(value) {
             $('#i-color').hide();
             $('#i-width').show();
             $('#i-height').show();
+            $("#i-more").show();
             break;
         case "line":
             $('#i-proto').show();
@@ -68,6 +71,7 @@ function showInput(value) {
             $('#i-color').hide();
             $('#i-width').hide();
             $('#i-height').hide();
+            $("#i-more").show();
             break;
         default:
             $('#i-card').hide();
@@ -76,6 +80,7 @@ function showInput(value) {
             $('#i-width').hide();
             $('#i-height').hide();
             $('#i-proto').hide();
+            $("#i-more").hide();
     }
 }
 
@@ -84,6 +89,15 @@ $('#chartType').on('change', function () {
     console.log(this.value);
     showInput(this.value);
 });
+
+//Other Calculation 
+function mean(data) {
+    return d3.mean(data);
+}
+
+function standardDeviation(data) {
+    return d3.deviation(data);
+};
 
 function draw() {
     $("#chart").html("");
@@ -133,6 +147,49 @@ function draw() {
                         drawLineChart(protos, cards, titles);
                         break;
                 }
+
+
+                //Handle Additional Information
+                if (document.getElementById("i-mean").checked) {
+                    var meanArray = [];
+
+                    for (i = 0; i < protos[0].length; i++) {
+                        console.log(mean(protos.map(d => d[i])));
+                        meanArray.push(mean(protos.map(d => d[i])));
+                    }
+
+                    $("#addition").append("<h3>Mean</h3>");
+
+                    for (i = 0; i < meanArray.length; i++) {
+                        if (titles) {
+                            $("#addition").append("<b>" + titles[i] + "</b>: " + meanArray[i] + "<br>");
+                        } else {
+                            $("#addition").append("<b>Feature " + i + "</b>: " + meanArray[i] + "<br>");
+                        }
+
+                    }
+
+                }
+
+                if (document.getElementById("i-sd").checked) {
+                    var sdArray = [];
+
+                    for (i = 0; i < protos[0].length; i++) {
+                        console.log(standardDeviation(protos.map(d => d[i])));
+                        sdArray.push(standardDeviation(protos.map(d => d[i])));
+                    }
+
+                    $("#addition").append("<h3>Standard Deviation</h3>");
+
+                    for (i = 0; i < sdArray.length; i++) {
+                        if (titles) {
+                            $("#addition").append("<b>" + titles[i] + "</b>: " + sdArray[i] + "<br>");
+                        } else {
+                            $("#addition").append("<b>Feature " + i + "</b>: " + sdArray[i] + "<br>");
+                        }
+                    }
+                }
+
             });
         });
     });

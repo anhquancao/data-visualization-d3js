@@ -45,3 +45,7 @@
     stroke: #000;
     shape-rendering: crispEdges;
 }
+
+#id-more {
+    display: none;
+}

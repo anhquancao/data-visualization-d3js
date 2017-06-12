@@ -70,7 +70,19 @@
                             <label for="gridHeight">Grid Height</label>
                             <input type="number" value="#ff0000" id='gridHeight' name='gridHeight' />
                         </div>
-
+                        <div class="form-group" id="i-more">
+                            <label for="other-info">Additional Information</label>
+                            <div class="checkbox">
+                                <label>
+                                <input type="checkbox" id="i-mean" value="mean">
+                                    Mean
+                                </label>
+                                <label>
+                                <input type="checkbox" id="i-sd" value="sd">
+                                    Standard Deviation
+                                </label>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <button onclick="draw()" type="button" class="btn btn-primary">Draw</button>
                         </div>
@@ -82,6 +94,7 @@
                     <div class="panel-heading">Chart Area</div>
                     <div class="panel-body">
                         <div id="chart"></div>
+                        <div id="addition"></div>
                     </div>
                 </div>
             </div>
