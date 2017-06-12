@@ -99,8 +99,13 @@ function standardDeviation(data) {
     return d3.deviation(data);
 };
 
+function minMax(data) {
+    return d3.extent(data);
+}
+
 function draw() {
     $("#chart").html("");
+    $("#addition").html("");
     let chartType = $("#chartType").val();
     let gridWidth = $('#gridWidth').val();
     let gridHeight = $('#gridHeight').val();
@@ -128,7 +133,7 @@ function draw() {
 
                 let color = hexToRgb($('#color').val());
 
-
+                //Handle Draw Chart
                 switch (chartType) {
                     case "color":
                         if (gridHeight * gridWidth < protos.length) {
@@ -186,6 +191,25 @@ function draw() {
                             $("#addition").append("<b>" + titles[i] + "</b>: " + sdArray[i] + "<br>");
                         } else {
                             $("#addition").append("<b>Feature " + i + "</b>: " + sdArray[i] + "<br>");
+                        }
+                    }
+                }
+
+                if (document.getElementById("i-minmax").checked) {
+                    var minMaxArray = [];
+
+                    for (i = 0; i < protos[0].length; i++) {
+                        console.log(minMax(protos.map(d => d[i])));
+                        minMaxArray.push(minMax(protos.map(d => d[i])));
+                    }
+
+                    $("#addition").append("<h3>Min and Max</h3>");
+
+                    for (i = 0; i < minMaxArray.length; i++) {
+                        if (titles) {
+                            $("#addition").append("<b>" + titles[i] + "</b>: Min:" + minMaxArray[i][0] + " - Max:" + minMaxArray[i][1] + "<br>");
+                        } else {
+                            $("#addition").append("<b>Feature " + i + "</b>: Min:" + minMaxArray[i][0] + " - Max:" + minMaxArray[i][1] + "<br>");
                         }
                     }
                 }
