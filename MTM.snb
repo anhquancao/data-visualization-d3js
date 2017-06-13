@@ -1,0 +1,489 @@
+{
+  "metadata" : {
+    "name" : "MTM",
+    "user_save_timestamp" : "1970-01-01T01:00:00.000Z",
+    "auto_save_timestamp" : "1970-01-01T01:00:00.000Z",
+    "language_info" : {
+      "name" : "scala",
+      "file_extension" : "scala",
+      "codemirror_mode" : "text/x-scala"
+    },
+    "trusted" : true,
+    "customLocalRepo" : null,
+    "customRepos" : null,
+    "customDeps" : null,
+    "customImports" : null,
+    "customArgs" : null,
+    "customSparkConf" : null
+  },
+  "cells" : [ {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "2B8FFFF2610F40BA873138C331219D3E"
+    },
+    "cell_type" : "code",
+    "source" : "\nimport org.apache.spark.SparkConf\nimport org.apache.spark.SparkContext\nimport org.apache.spark.SparkContext._\nimport org.apache.spark.rdd.RDD\n//import org.apache.spark.util.Vector\nimport org.apache.spark.ml.linalg.{Vector, Vectors}\n//import org.apache.spark.mllib.linalg.Vectors\n//import org.apache.spark.mllib.linalg.Vector\n//package org.lipn.som.global\n\nimport java.util.concurrent.TimeUnit._\nimport org.apache.spark.rdd.RDD\n//import org.apache.spark.util.Vector\nimport scala.concurrent.duration.{FiniteDuration, Duration}\n//import org.lipn.som.som.pointObj\nimport org.apache.spark.util\n",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "import org.apache.spark.SparkConf\nimport org.apache.spark.SparkContext\nimport org.apache.spark.SparkContext._\nimport org.apache.spark.rdd.RDD\nimport org.apache.spark.ml.linalg.{Vector, Vectors}\nimport java.util.concurrent.TimeUnit._\nimport org.apache.spark.rdd.RDD\nimport scala.concurrent.duration.{FiniteDuration, Duration}\nimport org.apache.spark.util\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : ""
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 8,
+      "time" : "Took: 1 second 234 milliseconds, at 2017-6-6 1:19"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "9265623F82D44A268E1C72C4FD7F48B6"
+    },
+    "cell_type" : "code",
+    "source" : ":markdown\n#NamedVector.scala",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "res17: String = #NamedVector.scala\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/markdown" : "#NamedVector.scala"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 10,
+      "time" : "Took: 1 second 261 milliseconds, at 2017-6-3 15:35"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "7128594164A24452A9A28D1190CCB97D"
+    },
+    "cell_type" : "code",
+    "source" : "//package org.lipn.som.utils\n\nimport org.apache.spark.ml.linalg.{Vector, Vectors}\n\n/**\n * Created with IntelliJ IDEA.\n * User: tug\n * Date: 27/03/13\n * Time: 17:07\n * To change this template use File | Settings | File Templates.\n */\nclass NamedVector(elements: Array[Double], val cls: Int) extends Vector(elements) with Serializable {\n  override def toString(): String = {\n    \"#\"+cls+\" \"+super.toString()\n  }\n  def toJSON(clusterId: Int): String = {\n    var str = new StringBuilder\n    str append \"{\"\n    for (i <- 0 until elements.length) {\n      str append \"attr\"+i+\":\"+elements(i)+\", \"\n    }\n    str append \"cls:\\\"\"+cls+\"\\\", \"\n    str append \"clusterId:\"+clusterId\n    str append \"}\\n\"\n    str.toString()\n  }\n}",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "<console>:33: error: trait Vector is a trait; does not take constructor arguments\n       class NamedVector(elements: Array[Double], val cls: Int) extends Vector(elements) with Serializable {\n                                                                        ^\n"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "2736AD3B4D7749D886A123CA1D209170"
+    },
+    "cell_type" : "code",
+    "source" : ":markdown\n#Matrix.scala",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "res13: String = #Matrix.scala\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/markdown" : "#Matrix.scala"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 7,
+      "time" : "Took: 1 second 207 milliseconds, at 2017-6-3 15:32"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "7CDF2C41EAC5425782484B5FC1B9D70B"
+    },
+    "cell_type" : "code",
+    "source" : "//package org.lipn.som.utils\n\n/**\n * Created with IntelliJ IDEA.\n * User: tug\n * Date: 27/03/13\n * Time: 19:10\n * To change this template use File | Settings | File Templates.\n */\nclass Matrix(val elements: Array[Array[Double]]) extends Serializable {\n  //def this(nbRow: Int, nbCol: Int) = this(Array.tabulate(nbRow, nbCol){case (r, c) => r+c})\n  def this(nbElements: Int, initValue: Double) = this(Array.fill(nbElements, nbElements)(initValue))\n\n  def fillRow(row: Int, value: Double) = {elements(row) = Array.fill(elements.length)(value)}\n  def apply(row: Int, col: Int):Double = elements(row)(col)\n\n  def addel(row: Int, col: Int, value: Double) {elements(row)(col) += value}\n\n  def += (other: Matrix): Matrix = {\n    //todo: add length check\n    //if (length != other.length)\n    //  throw new IllegalArgumentException(\"Matrix of different length\")\n    var ans = 0.0\n    var i = 0\n    for (i <- 0 until elements.length) {\n      for (j <- 0 until elements(i).length) {\n        elements(i)(j) += other.elements(i)(j)\n      }\n    }\n    this\n  }\n\n  def /= (other: Matrix): Matrix = {\n    //todo: add length check\n    //if (length != other.length)\n    //  throw new IllegalArgumentException(\"Matrix of different length\")\n    var ans = 0.0\n    var i = 0\n    for (i <- 0 until elements.length) {\n      for (j <- 0 until elements(i).length) {\n        if (other.elements(i)(j) == 0) elements(i)(j) /= Double.MinPositiveValue\n        else elements(i)(j) /= other.elements(i)(j)\n      }\n    }\n    this\n  }\n\n  /*def strRow(rowId: Int): String = {\n    var first = true\n\n    var str = new StringBuilder()\n    str append \"[\"\n    for (x <- elements(rowId)) {\n      if (first) {\n        first = false\n      }\n      else {\n        str append \", \"\n      }\n      str append x\n    }\n    str append \"]\"\n    str.toString()\n  }\n\n  def strCol(colId: Int): String = {\n    var first = true\n\n    var str = new StringBuilder()\n    str append \"[\"\n    for (row <- elements) {\n      if (first) {\n        str append row(colId)\n        first = false\n      }\n      else {\n        str append \", \"\n        str append row(colId)\n      }\n    }\n    str append \"]\"\n    str.toString()\n  }*/\n\n  //override def toString = elements.mkString(\"|\", \" | \", \"|\")\n  override def toString: String = {\n    val str = new StringBuilder()\n    for (row <- elements) {\n      for (elem <- row) {\n        str.append(\" |\").append(\"%.2f\".format(elem))\n      }\n      str.append(\"|\\n\")\n    //elements.foreach{r =>\n      //str append row.mkString(\"|\", \" | \", \"|\")+\"\\n\"\n    }\n    str.toString()\n  }\n}\n",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "defined class Matrix\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : ""
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 41,
+      "time" : "Took: 939 milliseconds, at 2017-6-3 17:6"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "87E58274AD6345E4B90AF097F294602F"
+    },
+    "cell_type" : "code",
+    "source" : ":markdown\n#IO.scala",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "res7: String = #IO.scala\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/markdown" : "#IO.scala"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 4,
+      "time" : "Took: 1 second 340 milliseconds, at 2017-6-3 15:29"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "B842BCF3F492457B8A762B8B3CB174CC"
+    },
+    "cell_type" : "code",
+    "source" : "//package org.lipn.som.utils\n\nimport java.io.File\n\n/**\n * Company : Altic - LIPN\n * User: Tugdual Sarazin\n * Date: 06/06/14\n * Time: 11:48\n */\nobject IO {\n\n  /** Deletes each file or directory (recursively) in `files`.*/\n  def delete(files: Iterable[File]): Unit = files.foreach(delete)\n\n  /** Deletes `file`, recursively if it is a directory. */\n  def delete(file: File)\n  {\n      val deleted = file.delete()\n      if(!deleted && file.isDirectory)\n      {\n        delete(listFiles(file))\n        file.delete\n      }\n  }\n\n  /** Returns the children of directory `dir` that match `filter` in a non-null array.*/\n  def listFiles(filter: java.io.FileFilter)(dir: File): Array[File] = wrapNull(dir.listFiles(filter))\n\n  /** Returns the children of directory `dir` that match `filter` in a non-null array.*/\n  def listFiles(dir: File, filter: java.io.FileFilter): Array[File] = wrapNull(dir.listFiles(filter))\n\n  /** Returns the children of directory `dir` in a non-null array.*/\n  def listFiles(dir: File): Array[File] = wrapNull(dir.listFiles())\n\n  private def wrapNull(a: Array[File]) =\n    if(a == null)\n      new Array[File](0)\n    else\n      a\n}\n",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "import java.io.File\ndefined object IO\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : ""
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 1,
+      "time" : "Took: 1 second 993 milliseconds, at 2017-6-6 1:0"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "F39D6EFB33AF498D8AE47212D8D7CB83"
+    },
+    "cell_type" : "code",
+    "source" : ":markdown\nSparkReader.scala",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "res75: String = SparkReader.scala\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/markdown" : "SparkReader.scala"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 60,
+      "time" : "Took: 1 second 273 milliseconds, at 2017-6-3 18:7"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "328A3B91F45A4B65AFB7357CD85B9A6D"
+    },
+    "cell_type" : "code",
+    "source" : "//package org.lipn.som.utils\n\nimport org.apache.spark.SparkContext\nimport org.apache.spark.rdd.RDD\n\n/**\n * Company : Altic - LIPN\n * User: Tugdual Sarazin\n * Date: 07/01/14\n * Time: 12:37\n */\nobject SparkReader {\n  def parse(sc: SparkContext, filePath: String, splitRegex: String): RDD[NamedVector] = {\n    sc.textFile(filePath).map{line =>\n      val arrayDouble = line.split(splitRegex).map(_.toDouble)\n      new NamedVector(arrayDouble.dropRight(1), arrayDouble.last.toInt)\n    }\n  }\n}",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "<console>:172: error: not found: type NamedVector\n         def parse(sc: SparkContext, filePath: String, splitRegex: String): RDD[NamedVector] = {\n                                                                                ^\n<console>:175: error: not found: type NamedVector\n             new NamedVector(arrayDouble.dropRight(1), arrayDouble.last.toInt)\n                 ^\n"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "B29DB159843A4CA685233DC832AB8E1B"
+    },
+    "cell_type" : "code",
+    "source" : ":markdown\n#NmiMetric.scala",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "res81: String = #NmiMetric.scala\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/markdown" : "#NmiMetric.scala"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 63,
+      "time" : "Took: 1 second 332 milliseconds, at 2017-6-3 18:8"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : true,
+      "id" : "B5027B8CE462421B85E62425AC56ADC8"
+    },
+    "cell_type" : "code",
+    "source" : "//package org.lipn.som.utils\n\n/**\n * Created with IntelliJ IDEA.\n * User: tug\n * Date: 24/05/13\n * Time: 19:02\n * To change this template use File | Settings | File Templates.\n */\n//object NmiMetric extends App {\nobject NmiMetric {\n  def jointProbabilty(x: Array[Int], y: Array[Int]) {\n\n  }\n}\n",
+    "outputs" : [ ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "EC59E17DA3FD4582857637194E20BFBE"
+    },
+    "cell_type" : "code",
+    "source" : ":markdown\n#AbstractPrototype.scala",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "res45: String = #AbstractPrototype.scala\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/markdown" : "#AbstractPrototype.scala"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 34,
+      "time" : "Took: 1 second 169 milliseconds, at 2017-6-3 17:1"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "74AF2500F11D4470B975946BAAEE9254"
+    },
+    "cell_type" : "code",
+    "source" : "//package org.lipn.som.global\nimport org.apache.spark.ml.linalg.{Vector,Vectors}\n\n//import org.apache.spark.util\n\n/**\n * Created with IntelliJ IDEA.\n * User: tug\n * Date: 14/06/13\n * Time: 12:42\n * To change this template use File | Settings | File Templates.\n */\nabstract class AbstractPrototype(val id: Int, var _point: Vector) extends Serializable {\n  def update(newPoint: Vector): Double = {\n //   val dist = _point.dist(newPoint)\n  val dist = org.apache.spark.ml.linalg.Vectors.sqdist(_point,newPoint)\n\n    _point = newPoint\n    dist\n  }\n\n // def dist(data: Vector) = _point.dist(data) // a modifier: - ajouter une pondÃ©ration fixe; - ajouter une pondÃ©ration adaptative\ndef dist(data: Vector) = org.apache.spark.ml.linalg.Vectors.sqdist(_point,data) // a modifier: - ajouter une pondÃ©ration fixe; - ajouter une pondÃ©ration adaptative\n\n//def dist(prototype: AbstractPrototype) = _point.dist(prototype._point)\ndef dist(prototype: AbstractPrototype) = org.apache.spark.ml.linalg.Vectors.sqdist(_point,prototype._point)\n  \n}\n",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "import org.apache.spark.ml.linalg.{Vector, Vectors}\ndefined class AbstractPrototype\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : ""
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 16,
+      "time" : "Took: 769 milliseconds, at 2017-6-6 1:25"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "CA1E0D9E81054E1E909780943795CCD6"
+    },
+    "cell_type" : "code",
+    "source" : ":markdown\n#WriterCluster.scala",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "res85: String = #WriterCluster.scala\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/markdown" : "#WriterCluster.scala"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 65,
+      "time" : "Took: 1 second 291 milliseconds, at 2017-6-3 18:12"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "D4C6E500120C46808CB73D83684D263E"
+    },
+    "cell_type" : "code",
+    "source" : "//package org.lipn.som.utils\n\nimport java.io._\nimport org.apache.spark.rdd.RDD\n//import org.lipn.som.global.AbstractModel\n\n\nobject WriterClusters {\n  def js(data: RDD[NamedVector], model: AbstractModel, path: String) = {\n    val writer = new PrintWriter(new File(path))\n\n    val dataArray = data.toArray()\n    var str = \"var dataset = [\"\n\n    dataArray.foreach {d =>\n      val closestNeuron = model.findClosestPrototype(d)\n      if (d != dataArray.head) str += ','\n      str += d.toJSON(closestNeuron.id)\n    }\n\n    /*model.foreach{proto =>\n      str += ','\n      str += \"{\"\n      for (i <- 0 until proto._point.length) {\n        str += \"attr\"+i+\":\"+proto._point(i)+\", \"\n      }\n      str += \"cls:\\\"proto\\\", \"\n      str += \"clusterId:-\"+proto.id\n      str += \"}\\n\"\n    }\n    */\n    str += \"];\"\n    writer.write(str)\n\n    writer.close()\n  }\n}\n",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "<console>:95: error: not found: type NamedVector\n         def js(data: RDD[NamedVector], model: AbstractModel, path: String) = {\n                          ^\n"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "CA1E0D9E81054E1E909780943795CCD6"
+    },
+    "cell_type" : "code",
+    "source" : "",
+    "outputs" : [ {
+      "metadata" : { },
+      "data" : {
+        "text/html" : ""
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 44,
+      "time" : "Took: 1 second 252 milliseconds, at 2017-6-3 17:6"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "0BD5BA82938F41DD8C42AECAD28ED107"
+    },
+    "cell_type" : "code",
+    "source" : ":markdown \n#AbstractModel.scala",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "res36: String = #AbstractModel.scala\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/markdown" : "#AbstractModel.scala"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 27,
+      "time" : "Took: 1 second 367 milliseconds, at 2017-6-3 16:49"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "D5C2612F7811426C94AD8C33103A6B51"
+    },
+    "cell_type" : "code",
+    "source" : "import org.apache.spark.rdd.RDD\nimport org.apache.spark.ml.linalg.{Vector,Vectors}\n/**\n * Created with IntelliJ IDEA.\n * User: tug\n * Date: 14/06/13\n * Time: 12:34\n * To change this template use File | Settings | File Templates.\n */\n\n class pointObj(\n    val data: Vector,//the numeric part of the data-point\n    //val label: Int,            //the real (provided) label\n    val id: Int               //the identifier(=numeroLigne) of the data-point\n    ) extends Serializable {\n  override def toString: String = {\" \"\n    //data.toArray.deep.mkString(\", \") + pointPartBin.toArray.deep.mkString(\", \")\n    /*\"partieNumerique -> \"+pointPartNum.toArray.deep.mkString(\"[\", \", \", \"]\") +\n    \"; partieBinaire -> \"+pointPartBin.toArray.deep.mkString(\"[\", \", \", \"]\")*/ \n  } \n }\n \n\nabstract class AbstractModel(val prototypes: Array[AbstractPrototype]) extends Serializable {\n  def size = prototypes.size\n\n  def findClosestPrototype(data: Vector): AbstractPrototype = {\n    prototypes.minBy(proto => proto.dist(data))\n  }\n  \n  def findClosestPrototypeId(data: Vector): AbstractPrototype = {\n    prototypes.minBy(proto => proto.dist(data))\n  }  \n\n  def apply(i: Int) = prototypes(i)\n\n  def assign(dataset: RDD[pointObj]): RDD[(Int, Int)] =  {\n    dataset.map(d => (this.findClosestPrototype(d.data).id, d.id))\n  }\n}\n",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "import org.apache.spark.rdd.RDD\nimport org.apache.spark.ml.linalg.{Vector, Vectors}\ndefined class pointObj\ndefined class AbstractModel\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : ""
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 20,
+      "time" : "Took: 1 second 90 milliseconds, at 2017-6-6 1:31"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "3F31F7F976564E849122CA88BA83B218"
+    },
+    "cell_type" : "code",
+    "source" : ":markdown \n#AbstractTrainer.scala",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "res40: String = #AbstractTrainer.scala\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/markdown" : "#AbstractTrainer.scala"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 30,
+      "time" : "Took: 1 second 196 milliseconds, at 2017-6-3 16:52"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "0533032DC3BF449796B196D35705E2ED"
+    },
+    "cell_type" : "code",
+    "source" : "/**\n * Created with IntelliJ IDEA.\n * User: tug\n * Date: 14/06/13\n * Time: 12:31\n * To change this template use File | Settings | File Templates.\n */\n\n\nimport java.util.concurrent.TimeUnit._\nimport org.apache.spark.rdd.RDD\nimport scala.concurrent.duration.{FiniteDuration, Duration}\nimport org.apache.spark.ml.linalg.{Vector,Vectors}\n\ntrait AbstractTrainer extends Serializable {\n  private var _it = 0\n  def getLastIt = _it\n\n  private var _converge = 1.0\n  def getLastConvergence = _converge\n\n  private var _trainingDuration = Duration.Zero\n  def getLastTrainingDuration = _trainingDuration\n\n  protected def initModel(dataset: RDD[Vector], modelOptions: Map[String, String])\n\n  protected def trainingIteration(dataset: RDD[Vector], currentIteration: Int, maxIteration: Int): Double\n\n  protected def getModel: AbstractModel\n\n  final def training(dataset: RDD[Vector],\n                     modelOptions: Map[String, String] = Map.empty,\n                     maxIteration: Int = 100,\n                     endConvergeDistance: Double = 0.001): AbstractModel = {\n\n    val datasetSize = dataset.count()\n\n    val startLearningTime = System.currentTimeMillis()\n\n    val model = initModel(dataset, modelOptions)\n    _it = 0\n    _converge = 1.0\n\n    while (_converge > endConvergeDistance && _it < maxIteration) {\n\n      // Training iteration\n      val sumConvergence = trainingIteration(dataset, _it, maxIteration)\n\n      // process convergence\n      _converge = sumConvergence / datasetSize\n      _it += 1\n    }\n\n    _trainingDuration = Duration.create(System.currentTimeMillis() - startLearningTime, MILLISECONDS)\nprintln(\"le model apres training est : \"+getModel)\n\n    // return the model\n    getModel\n  }\n}\n",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "import java.util.concurrent.TimeUnit._\nimport org.apache.spark.rdd.RDD\nimport scala.concurrent.duration.{FiniteDuration, Duration}\nimport org.apache.spark.ml.linalg.{Vector, Vectors}\ndefined trait AbstractTrainer\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/html" : ""
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 27,
+      "time" : "Took: 1 second 169 milliseconds, at 2017-6-6 1:34"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "4AC18190D25842648090D447EC6D777A"
+    },
+    "cell_type" : "code",
+    "source" : ":markdown\n#SomTrainerA.scala",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "res69: String = #SomTrainerA.scala\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/markdown" : "#SomTrainerA.scala"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 56,
+      "time" : "Took: 1 second 321 milliseconds, at 2017-6-3 18:4"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "6996406D601D42538560B9C882D6B797"
+    },
+    "cell_type" : "code",
+    "source" : "//package org.lipn.som.som\n\nimport scala.math.{abs, exp}\nimport java.util.Random\nimport org.apache.spark.rdd.RDD\n//import org.apache.spark.SparkContext._\n//import org.apache.spark.util.Vector\n//import org.lipn.som.global.{AbstractPrototype, AbstractModel, AbstractTrainer}\n//import org.lipn.som.utils.NamedVector\nimport scala.concurrent.duration.{FiniteDuration, Duration}\nimport org.apache.spark.ml.linalg.{Vector,Vectors}\n\n\n/**\n * User: tug\n * Date: 14/06/13\n * Time: 12:35\n */\nclass SomTrainerA extends AbstractTrainer {\n  val DEFAULT_SOM_ROW = 10\n  val DEFAULT_SOM_COL = 10\n  val DEFAULT_TMAX = 8\n  val DEFAULT_TMIN = 1\n  val DEFAULT_INITMAP = 0\n  val DEFAULT_INITMAPFile = \"\"\n  val DEFAULT_SEPARATOR = \"\"\n  val SIZE_REAL_VARS = 10\n  \n  var tmax: Double = DEFAULT_TMAX\n  var tmin: Double = DEFAULT_TMIN\n  var initMap: Int = DEFAULT_INITMAP\n  var initMapFile: String = DEFAULT_INITMAPFile\n  var sep = DEFAULT_SEPARATOR\n  var sizeRealVars: Int = SIZE_REAL_VARS\n \n\n  protected var _somModel: SomModel = null\n  protected def getModel: AbstractModel = _somModel\n\n  protected def initModel(dataset: RDD[Vector], modelOptions: Map[String, String]) {\n    var nbRow = DEFAULT_SOM_ROW\n    var nbCol = DEFAULT_SOM_COL\n    if (modelOptions != null) {\n      nbRow = modelOptions(\"clustering.som.nbrow\").toInt\n      nbCol = modelOptions(\"clustering.som.nbcol\").toInt\n      tmax = modelOptions.get(\"clustering.som.tmax\").map(_.toDouble).getOrElse(DEFAULT_TMAX)\n      tmin = modelOptions.get(\"clustering.som.tmin\").map(_.toDouble).getOrElse(DEFAULT_TMIN)\n      initMap = modelOptions.get(\"clustering.som.initMap\").map(_.toInt).getOrElse(DEFAULT_INITMAP)\n      initMapFile = modelOptions.get(\"clustering.som.initMapFile\").map(_.toString).getOrElse(DEFAULT_INITMAPFile)\n      sep = modelOptions.get(\"clustering.som.separator\").map(_.toString).getOrElse(DEFAULT_SEPARATOR)\n      sizeRealVars = modelOptions(\"clustering.som.nbRealVars\").toInt\n    }\n\n    val mapSize = nbRow * nbCol\n    // todo : replace random = 42\n    var selectedDatas: Array[org.apache.spark.ml.linalg.Vector] = Array()\n    if (initMap == 0) {    \n       selectedDatas = {\n      dataset.takeSample(withReplacement = false, mapSize, new Random().nextInt())\n    }\n    } else {\n       selectedDatas = {\n        scala.io.Source.fromFile(initMapFile).getLines().toArray.map(x => new Vector(x.split(sep).map(_.toDouble)))\n      }\n    }\n\n    // todo : Check /nbCol et %nbCOl\n    val neuronMatrix = Array.tabulate(mapSize)(id => new SomNeuron(id, id/nbCol, id%nbCol, selectedDatas(id)))\n    _somModel = new SomModel(nbRow, nbCol, neuronMatrix)\n  }//init model\n\n  protected def trainingIteration(dataset: RDD[Vector], currentIteration: Int, maxIteration: Int): Double = {\n    \n    val T = processT(maxIteration, currentIteration)\n\n    // create som observations\n    val mapping = dataset.map{d =>\n      val bestNeuron = _somModel.findClosestPrototype(d).asInstanceOf[SomNeuron]\n      \n      //ML: à rentrer dans la condition\n      var mapBin: scala.collection.immutable.Vector[(Int, Int)] = scala.collection.immutable.Vector()\n      \n      //binary part\n      if (d.length > this.sizeRealVars){\n        val d2: scala.collection.immutable.Vector[Double] = d.elements.drop(sizeRealVars).asInstanceOf[scala.collection.immutable.Vector[Double]]\n        mapBin = d2.map(x => if (x == 1) (1,0) else (0,1))\n      }\n\n\n      _somModel.prototypes.map{proto =>\n        val neuron = proto.asInstanceOf[SomNeuron]\n        val factor = neuron.factorDist(bestNeuron, T) // K(delta(.-.)/T)\n             \n        //binary part\n        var mapBinPondere: scala.collection.immutable.Vector[(Double, Double)] = scala.collection.immutable.Vector()\n       \n        //ML:ajouter la condition (d.length > this.sizeRealVars), sinon vecteur vide\n        if (mapBin.size > 0) {\n          mapBinPondere = mapBin.map(x => (x._1 * factor, x._2 * factor))\n        }\n        \n        //ML: dans le cas de non présence de réelle vecteur vide, pareil pour les varibales binaires\n        new SomObsA(Vector(d.elements.take(sizeRealVars)) * factor, factor, mapBinPondere, neuron.id)\n      }\n    } //end mapping\n\n    // Concat observations\n    val concatObs = mapping.reduce{(obs1, obs2) =>\n      for (i <- 0 until obs1.length) {\n        obs1(i) += obs2(i)\n      }\n      obs1\n    }\n\n    // Update model and process convergence distance\n    //val x: Array[Double] = concatObs.map(_somModel.update)\n    concatObs.map(_somModel.update).sum\n    \n  }//end trainingIteration\n\n  //protected def processT(maxIt:Int, currentIt:Int) = maxIt.toFloat - currentIt\n   protected def processT(maxIt:Int, currentIt:Int) =\n      this.tmax*math.pow(this.tmin/this.tmax,currentIt/(maxIt.toFloat-1))\n\n  protected class SomModel(val nbRow: Int, val nbCol: Int, neurons: Array[SomNeuron])\n    extends AbstractModel(neurons.asInstanceOf[Array[AbstractPrototype]]) {\n\n    // Update the data point of the neuron\n    // and return the distance between the new and the old point\n    def update(obs: SomObsA) = neurons(obs.neuronId).update(obs.compute)\n\n\n    override def toString: String = {\n      var str = \"\"\n      for(neuron <- neurons) {\n        str += neuron+\"\\n\"\n      }\n      str\n    }\n  }\n\n  protected class SomNeuron(id: Int, val row: Int, val col: Int, point: Vector) extends AbstractPrototype(id, point) {\n    def factorDist(neuron: SomNeuron, T: Double): Double = {\n      exp(-(abs(neuron.row - row) + abs(neuron.col - col)) / T)\n    }\n\n    override def toString: String = {\n      \"(\"+row+\", \"+col+\") -> \"+point\n    }\n  }\n\n  protected class SomObsA(var numerator:Vector, var denominator: Double, var mapBinPonderation: scala.collection.immutable.Vector[(Double, Double)], val neuronId: Int) extends Serializable {\n    def +(obs: SomObsA): SomObsA = {\n      //ML:que lorsqu'on a des données réelles\n      numerator += obs.numerator\n      denominator += obs.denominator\n      \n\n      // calcul de la somme des pondÃ©ration des 1 et des 0\n     //ML:ajouter la condition (d.length > this.sizeRealVars)\n\n      var mapBinPonderation2: scala.collection.immutable.Vector[(Double, Double)] = scala.collection.immutable.Vector()\n      for (i <-0 to mapBinPonderation.size){\n        val c1: Double = mapBinPonderation(i)._1 + obs.mapBinPonderation(i)._1\n        val c0: Double = mapBinPonderation(i)._2 + obs.mapBinPonderation(i)._2\n        mapBinPonderation2 :+ (c1, c0)\n      }\n      mapBinPonderation = mapBinPonderation2\n      \n      this\n    }\n\n    //def compute = numerator / denominator\n    def compute = {\n      val newPointsReal = numerator / denominator\n      \n      // calcul de la mediane\n      //ML:ajouter la condition (d.length > this.sizeRealVars)\n\n      val newPointsBin = mapBinPonderation.map {e =>\n        if (e._1 >= e._2) 1.0 else 0.0}\n      \n      // concatenation de la partie real et binaire\n      new Vector(newPointsReal.elements ++ newPointsBin) \n       \n    }\n\n    override def toString = numerator.toString()+\" : \"+denominator.toString\n  }//end SomObsA\n\n\n\n  def purity(dataset: RDD[NamedVector]): Double = {\n    //val nbRealClass = dataset.map(_.cls).reduce(case(cls1,cls2))\n\n    val sumAffectedDatas = dataset.map(d => ((_somModel.findClosestPrototype(d).id, d.cls), 1))\n      .reduceByKey{case (sum1, sum2) => sum1+sum2}\n\n    val maxByCluster = sumAffectedDatas.map(sa => (sa._1._1, sa._2))\n      .reduceByKey{case (sum1, sum2) => sum1.max(sum2) }\n      .map(_._2)\n      .collect()\n\n    maxByCluster.sum / dataset.count().toDouble\n  }\n\n  def affectations(dataset: RDD[NamedVector]): RDD[(Int, Int)] = {\n    dataset.map(d => (d.cls, _somModel.findClosestPrototype(d).id))\n  }\n} //end SomTrainerA\n\n class pointObj(\n    val data: Vector,//the numeric part of the data-point\n    //val label: Int,            //the real (provided) label\n    val id: Int               //the identifier(=numeroLigne) of the data-point\n    ) extends Serializable {\n  override def toString: String = {\" \"\n    //data.toArray.deep.mkString(\", \") + pointPartBin.toArray.deep.mkString(\", \")\n    /*\"partieNumerique -> \"+pointPartNum.toArray.deep.mkString(\"[\", \", \", \"]\") +\n    \"; partieBinaire -> \"+pointPartBin.toArray.deep.mkString(\"[\", \", \", \"]\")*/ \n  } \n }\n \n",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "<console>:88: error: type mismatch;\n found   : Array[scala.collection.immutable.Vector[Array[Double]]]\n required: Array[org.apache.spark.ml.linalg.Vector]\n               scala.io.Source.fromFile(initMapFile).getLines().toArray.map(x =>  Vector(x.split(sep).map(_.toDouble)))\n                                                                           ^\n<console>:109: error: value length is not a member of org.apache.spark.ml.linalg.Vector\n             if (d.length > this.sizeRealVars){\n                   ^\n<console>:110: error: value elements is not a member of org.apache.spark.ml.linalg.Vector\n               val d2: scala.collection.immutable.Vector[Double] = d.elements.drop(sizeRealVars).asInstanceOf[scala.collection.immutable.Vector[Double]]\n                                                                     ^\n<console>:128: error: value elements is not a member of org.apache.spark.ml.linalg.Vector\n               new SomObsA(Vector(d.elements.take(sizeRealVars)) * factor, factor, mapBinPondere, neuron.id)\n                                    ^\n<console>:200: error: value / is not a member of org.apache.spark.ml.linalg.Vector\n             val newPointsReal = numerator / denominator\n                                           ^\n<console>:209: error: trait Vector is abstract; cannot be instantiated\n             new Vector(newPointsReal.elements ++ newPointsBin)\n             ^\n<console>:180: error: type mismatch;\n found   : org.apache.spark.ml.linalg.Vector\n required: String\n             numerator += obs.numerator\n                              ^\n<console>:218: error: not found: type NamedVector\n         def purity(dataset: RDD[NamedVector]): Double = {\n                                 ^\n<console>:222: error: value reduceByKey is not a member of org.apache.spark.rdd.RDD[U]\npossible cause: maybe a semicolon is missing before `value reduceByKey'?\n             .reduceByKey{case (sum1, sum2) => sum1+sum2}\n              ^\n<console>:222: error: type mismatch;\n found   : Any\n required: String\n             .reduceByKey{case (sum1, sum2) => sum1+sum2}\n                                                    ^\n<console>:232: error: not found: type NamedVector\n         def affectations(dataset: RDD[NamedVector]): RDD[(Int, Int)] = {\n                                       ^\n"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : false,
+      "id" : "DD16EAC03BA54D9C80AD4C60D31DD65A"
+    },
+    "cell_type" : "code",
+    "source" : ":markdown\n#RunSom.scala",
+    "outputs" : [ {
+      "name" : "stdout",
+      "output_type" : "stream",
+      "text" : "res71: String = #RunSom.scala\n"
+    }, {
+      "metadata" : { },
+      "data" : {
+        "text/markdown" : "#RunSom.scala"
+      },
+      "output_type" : "execute_result",
+      "execution_count" : 57,
+      "time" : "Took: 1 second 224 milliseconds, at 2017-6-3 18:4"
+    } ]
+  }, {
+    "metadata" : {
+      "trusted" : true,
+      "input_collapsed" : false,
+      "collapsed" : true,
+      "id" : "951756FD367C44808BEBE637EA7EC99C"
+    },
+    "cell_type" : "code",
+    "source" : "//package org.lipn.som.som\n\n/*import org.lipn.som.global.AbstractModel\nimport org.lipn.som.global.AbstractModel\nimport org.lipn.som.global.AbstractPrototype\nimport org.lipn.som.global.AbstractTrainer\nimport org.lipn.som.utils.NamedVector\nimport org.lipn.som.utils.DataGenerator\n*/\n\n\nobject RunSom{\n  \n    def main(args:Array[String]) {\n      run(\n          sparkMaster = args(0),\n          intputFile = args(1),\n          outputDir = args(2),\n          execName = args(3),\n          nbRow = args(4).toInt,\n          nbCol = args(5).toInt,\n          tmin = args(6).toDouble,\n          tmax = args(7).toDouble,\n          convergeDist = args(8).toDouble,\n          maxIter = args(9).toInt,\n          sep = args(10),\n          initMap = args(11).toInt, //0: initialisation aleatoire\n          initMapFile = args(12)\n      )  \n    }\n  \n  def run(\n    sparkMaster: String,\n    intputFile: String,\n    outputDir: String,\n    execName: String = \"RunSom\",\n    nbRow: Int = 10, \n    nbCol: Int = 10, \n    tmin: Double = 0.9, \n    tmax: Double = 8,\n    convergeDist: Double = -0.001,\n\t\tmaxIter: Int = 50,\n\t\tsep : String = \";\",\n\t\tinitMap: Int = 0,\n\t\tinitMapFile : String = \"\",\n\t\tnbRealVars : Int = 10\n    ) = {\n    val sparkConf = new SparkConf().setAppName(execName)\n\t\tsparkConf.setMaster(sparkMaster)\n\t\tval sc = new SparkContext(sparkConf)\n\n    val somOptions = Map(\n    \t\t\"clustering.som.nbrow\" -> nbRow.toString, \n    \t\t\"clustering.som.nbcol\" -> nbCol.toString,\n    \t\t\"clustering.som.tmin\" -> tmin.toString,\n    \t\t\"clustering.som.tmax\" -> tmax.toString,\n    \t\t\"clustering.som.initMap\" -> initMap.toString,\n    \t\t\"clustering.som.initMapFile\" -> initMapFile.toString,   \n    \t\t\"clustering.som.separator\" -> sep.toString\n    \t\t)\n\t    \t\n\t  val trainingDatasetId = sc.textFile(intputFile).map(x => new Vector(x.split(sep).map(_.toDouble))).cache() \n\t  \n\t  val trainingDataset = trainingDatasetId.map{ e =>\n\t     new Vector(e.elements.take(e.length - 1)) \n\t  }.cache()\n\t    \n \n\t  println(s\"nbRow: ${trainingDataset.count()}\")\n\t    \t\t\n\t\tval model = trainingAndPrint(new SomTrainerA, trainingDataset, somOptions, maxIter, convergeDist)\n\t\tprint(\"le model est : \"+model)\n\t\tsc.parallelize(model.prototypes).saveAsTextFile(outputDir+\"/model\")\n\t    \t\n\t\t\n\t  // transformer un point de donnÃ©es en un objet contenant la donnÃ©es et son identifiant \n\t  val trainingDatasetObj = trainingDatasetId.map{ e =>\n\t    val dataPart = e.elements.take(e.length - 1) // the last column represents the identifier\n\t    val id = e.elements(e.length - 1).toInt\n\t    new pointObj(new Vector(dataPart), id)\n\t  }.cache()\n\t  \n\t  trainingDataset.unpersist(true) \n\t  \n\t\tmodel.assign(trainingDatasetObj).saveAsTextFile(outputDir+\"/assignDatas\")\n\t\t\n//\t\tsc.stop()\n  }\n\n\n\tdef purity(model: AbstractModel, dataset: RDD[NamedVector]): Double = {\n\t\t\t//val nbRealClass = dataset.map(_.cls).reduce(case(cls1,cls2))\n\n\t\t\tval sumAffectedDatas = dataset.map(d => ((model.findClosestPrototype(d).id, d.cls), 1))\n\t\t\t\t\t.reduceByKey{case (sum1, sum2) => sum1+sum2}\n\n\t\t\tval maxByCluster = sumAffectedDatas.map(sa => (sa._1._1, sa._2))\n\t\t\t\t\t.reduceByKey{case (sum1, sum2) => sum1.max(sum2) }\n\t\t\t.map(_._2)\n\t\t\t.collect()\n\n\t\t\tmaxByCluster.sum / dataset.count().toDouble\n\t}\n\n\tdef trainingAndPrint(trainer: AbstractTrainer,\n\t\t\tdataset: RDD[Vector],\n\t\t\tmodelOptions: Map[String, String],\n\t\t\tmaxIteration: Int = 100,\n\t\t\tendConvergeDistance: Double): AbstractModel = {\n\t\t\tval model = trainer.training(dataset, modelOptions, maxIteration, endConvergeDistance)\n\t\t  // Initi  alisation du model\n\t\t\t//val trainer = new SomTrainer(nbRow, nbCol, trainingDataset, convergeDist, maxIter)\n\t\t\t//val model = trainer.model\n\n  \t\tprintln(\"-- Convergence Distance : \" + trainer.getLastConvergence)\n  \t\tprintln(\"-- NbIteration : \" + trainer.getLastIt)\n  \t\tprintln(\"-- Training duration : \" + trainer.getLastTrainingDuration)\n  \t\tprintln(\"-- The model : \" + model)\n  \t\t\n  \t\t\n  \t\tmodel\n\t}\n}\n",
+    "outputs" : [ ]
+  } ],
+  "nbformat" : 4
+}
