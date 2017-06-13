@@ -180,25 +180,4 @@ function drawBarChart(protos, cards, titles) {
             return d + ":";
         });
 
-    //    var cardsChart = d3.selectAll("#chart").append("svg").attr("height", "300px").attr("width", "100%");
-    //    cardsChart.selectAll("rect").data(cards).enter().append("rect")
-    //        .attr("height", function (d) {
-    //            return scale(d);
-    //        })
-    //        .attr("width", "30px")
-    //        .attr("x", function (d, i) {
-    //            return (i * 20) + 25;
-    //        })
-    //        .attr("y", function (d) {
-    //            return chartHeight - scale(d);
-    //        });
-
-    //    var feature = [];
-    //    for (var i = 0; i < protos.length; i++) {
-    //        for ()
-    //        for (var j = 0; j < protos[i].length; j++) {
-    //            feature = push(protos[i][j]);
-    //        }
-    //}
-
 }

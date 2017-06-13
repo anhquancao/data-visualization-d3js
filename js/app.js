@@ -101,7 +101,11 @@ function standardDeviation(data) {
 
 function minMax(data) {
     return d3.extent(data);
-}
+};
+
+function median(data) {
+    return d3.median(data);
+};
 
 function draw() {
     $("#chart").html("");
@@ -122,8 +126,15 @@ function draw() {
                 let protos = protoStr.split('\n').filter(e => e !== '').map(p => p.split(','));
                 let cards = cardStr.split('\n').filter(e => e !== '').map(p => p.split(','));
                 let titles = [];
+                let datasets = [];
+
                 if (titleString) {
                     titles = titleString.split('\n').filter(e => e !== '').map(p => p.split(','));
+                    if (titles.length > 1) {
+                        for (i = 1; i < titles.length; i++) {
+                            datasets.push(titles[i]);
+                        }
+                    }
                     titles = titles[0];
                 } else {
                     titles = [...Array(protos[0].length).keys()].map((d) => {
@@ -131,6 +142,9 @@ function draw() {
                     });
                 }
 
+                console.log(protos);
+                console.log(protoStr);
+                console.log(titles);
                 let color = hexToRgb($('#color').val());
 
                 //Handle Draw Chart
@@ -158,9 +172,8 @@ function draw() {
                 if (document.getElementById("i-mean").checked) {
                     var meanArray = [];
 
-                    for (i = 0; i < protos[0].length; i++) {
-                        console.log(mean(protos.map(d => d[i])));
-                        meanArray.push(mean(protos.map(d => d[i])));
+                    for (i = 0; i < datasets[0].length; i++) {
+                        meanArray.push(mean(datasets.map(d => d[i])));
                     }
 
                     $("#addition").append("<h3>Mean</h3>");
@@ -176,12 +189,29 @@ function draw() {
 
                 }
 
+                if (document.getElementById("i-median").checked) {
+                    var medianArray = [];
+
+                    for (i = 0; i < datasets[0].length; i++) {
+                        medianArray.push(median(datasets.map(d => d[i])));
+                    }
+
+                    $("#addition").append("<h3>Median</h3>");
+
+                    for (i = 0; i < medianArray.length; i++) {
+                        if (titles) {
+                            $("#addition").append("<b>" + titles[i] + "</b>: " + medianArray[i] + "<br>");
+                        } else {
+                            $("#addition").append("<b>Feature " + i + "</b>: " + medianArray[i] + "<br>");
+                        }
+                    }
+                }
+
                 if (document.getElementById("i-sd").checked) {
                     var sdArray = [];
 
-                    for (i = 0; i < protos[0].length; i++) {
-                        console.log(standardDeviation(protos.map(d => d[i])));
-                        sdArray.push(standardDeviation(protos.map(d => d[i])));
+                    for (i = 0; i < datasets[0].length; i++) {
+                        sdArray.push(standardDeviation(datasets.map(d => d[i])));
                     }
 
                     $("#addition").append("<h3>Standard Deviation</h3>");
@@ -198,9 +228,8 @@ function draw() {
                 if (document.getElementById("i-minmax").checked) {
                     var minMaxArray = [];
 
-                    for (i = 0; i < protos[0].length; i++) {
-                        console.log(minMax(protos.map(d => d[i])));
-                        minMaxArray.push(minMax(protos.map(d => d[i])));
+                    for (i = 0; i < datasets[0].length; i++) {
+                        minMaxArray.push(minMax(datasets.map(d => d[i])));
                     }
 
                     $("#addition").append("<h3>Min and Max</h3>");
