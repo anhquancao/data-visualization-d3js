@@ -7,33 +7,43 @@ function lineChartOnClick(data, titles) {
 
     $('#modal-zoom').modal('show');
 
-    var scaleX = d3.scale.linear().domain([0, data.length]).range([0, 300]);
-    var scaleY = d3.scale.linear().domain([0, d3.max(data)]).range([0, 200]);
+    var scaleX = d3.scale.linear().domain([0, data.length - 1]).range([0, chartWidth]);
+    var scaleY = d3.scale.linear().domain([0, d3.max(data)]).range([0, chartHeight]);
 
     var chart = d3.select('#modal-info').attr("width", chartWidth + 100).attr("height", chartHeight + 100);
 
     var line = d3.svg.line()
         .x(function (d, i) {
-            return scaleX(i) + 20;
+            return scaleX(i) + 50;
         })
         .y(function (d) {
             return (chartHeight - scaleY(d)) + 20;
         });
 
-//    var xAxis = d3.svg.axis().scale(scaleX).tickSize(-chartHeight).tickSubdivide(true);
-//    chart.append("svg:g")
-//        .attr("class", "x axis")
-//        .attr("transform", "translate(0," + chartHeight + ")")
-//        .call(xAxis);
-//
-//
-//    var yAxisLeft = d3.svg.axis().scale(scaleY).ticks(4).orient("left");
-//    chart.append("svg:g")
-//        .attr("class", "y axis")
-//        .attr("transform", "translate(-25,0)")
-//        .call(yAxisLeft);
-    chart.append("path").attr("d", line(data)).attr('fill', 'none').attr('stroke-width', 3).attr('stroke', 'steelblue');
+    var scaleXAxis = d3.scale.ordinal().domain(titles).rangePoints([0, chartWidth]);
+    var scaleYAxis = d3.scale.linear().domain([0, d3.max(data)]).range([chartHeight, 0]);
 
+    var xAxis = d3.svg.axis().scale(scaleXAxis).orient("bottom");
+    chart.append("svg:g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(50," + (chartHeight + 20) + ")")
+        .call(xAxis)
+
+    var yAxisLeft = d3.svg.axis().scale(scaleYAxis).orient("left");
+    chart.append("svg:g")
+        .attr("class", "y axis")
+        .attr("transform", "translate(50,20)")
+        .call(yAxisLeft)
+
+    chart.append("path").attr("d", line(data)).attr('fill', 'none').attr('stroke-width', 1).attr('stroke', 'steelblue');
+
+//    var xAxisPole = d3.svg.axis().scale(scaleX).ticks(4).tickSize(function (d) {
+//        return -scaleY(d);
+//    });
+//
+//    chart.append("g")
+//        .attr("transform", "translate(50," + (chartHeight + 20) + ")")
+//        .call(xAxisPole)
 }
 
 function calculateLine(protos, arrayData, index) {

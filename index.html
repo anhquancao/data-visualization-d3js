@@ -30,7 +30,7 @@
             <div class="col-sm-4">
                 <div class='test'></div>
                 <div class="panel panel-default" id="controls">
-                    <div class="panel-heading">Extra Information</div>
+                    <div class="panel-heading">Control Panel</div>
                     <div class="panel-body">
                         <div class="form-group">
                             <label for="chartType">Chart Type</label>
@@ -51,7 +51,7 @@
                             <input type="file" class="form-control" name="card" id="card" />
                         </div>
                         <div class="form-group" id="i-title">
-                            <label for="card">Title file</label>
+                            <label for="card">Dataset</label>
                             <input type="file" class="form-control" name="title" id="title" />
                         </div>
 
@@ -70,7 +70,33 @@
                             <label for="gridHeight">Grid Height</label>
                             <input type="number" value="#ff0000" id='gridHeight' name='gridHeight' />
                         </div>
-
+                        <div class="form-group" id="i-more">
+                            <label for="other-info">Additional Information</label>
+                            <div class="checkbox">
+                                <label>
+                                <input type="checkbox" id="i-mean" value="mean">
+                                    Mean
+                                </label>
+                            </div>
+                            <div class="checkbox">
+                                <label>
+                                <input type="checkbox" id="i-median" value="median">
+                                    Median
+                                </label>
+                            </div>
+                            <div class="checkbox">
+                                <label>
+                                <input type="checkbox" id="i-sd" value="sd">
+                                    Standard Deviation
+                                </label>
+                            </div>
+                            <div class="checkbox">
+                                <label>
+                                <input type="checkbox" id="i-minmax" value="minmax">
+                                    Min and Max
+                                </label>
+                            </div>
+                        </div>
                         <div class="form-group">
                             <button onclick="draw()" type="button" class="btn btn-primary">Draw</button>
                         </div>
@@ -82,6 +108,7 @@
                     <div class="panel-heading">Chart Area</div>
                     <div class="panel-body">
                         <div id="chart"></div>
+                        <div id="addition"></div>
                     </div>
                 </div>
             </div>
