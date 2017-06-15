@@ -11,7 +11,6 @@ function drawLine(maxValue, titles, data, chart, chartWidth, chartHeight, color)
         });
 
     chart.append("path").attr("d", line(data)).attr('fill', 'none').attr('stroke-width', 1).attr('stroke', color);
-    console.log(data);
 }
 
 function drawLegend(legend, title, color, index) {
@@ -33,7 +32,7 @@ function drawLegend(legend, title, color, index) {
 
 }
 
-function drawAdditionChart(titles, meanArray, medianArray, sdArray, minMaxArray) {
+function drawAdditionChart(titles, meanArray, medianArray, sdArray, minMaxArray, maxValue) {
     var chartHeight = 500;
     var chartWidth = 300;
 
@@ -42,8 +41,6 @@ function drawAdditionChart(titles, meanArray, medianArray, sdArray, minMaxArray)
     var sdColor = "steelblue";
     var minColor = "black";
     var maxColor = "red";
-
-    var maxValue = d3.max(minMaxArray.map(d => d[1]));
 
     var chart = d3.select("#addition").append("svg").attr("height", chartHeight + 100).attr("width", chartWidth + 100);
 

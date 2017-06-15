@@ -221,6 +221,8 @@ function draw() {
                     }
                 }
 
+
+
                 if (document.getElementById("i-minmax").checked) {
                     var minMaxArray = [];
 
@@ -239,7 +241,18 @@ function draw() {
                     }
                 }
 
-                drawAdditionChart(titles, meanArray, medianArray, sdArray, minMaxArray);
+                var maxValue = 0;
+                for (i = 0; i < datasets[0].length; i++) {
+                    var tempMax = minMax(datasets.map(d => d[i]))[1];
+                    if (tempMax > maxValue) {
+                        maxValue = tempMax;
+                    }
+                }
+
+                if (meanArray || medianArray || sdArray || minMaxArray) {
+                    drawAdditionChart(titles, meanArray, medianArray, sdArray, minMaxArray, maxValue);
+                }
+
 
             });
         });
