@@ -142,9 +142,6 @@ function draw() {
                     });
                 }
 
-                console.log(protos);
-                console.log(protoStr);
-                console.log(titles);
                 let color = hexToRgb($('#color').val());
 
                 //Handle Draw Chart
@@ -242,6 +239,8 @@ function draw() {
                         }
                     }
                 }
+
+                drawAdditionChart(titles, meanArray, medianArray, sdArray, minMaxArray);
 
             });
         });
