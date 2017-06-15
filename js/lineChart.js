@@ -37,21 +37,20 @@ function lineChartOnClick(data, titles) {
 
     chart.append("path").attr("d", line(data)).attr('fill', 'none').attr('stroke-width', 1).attr('stroke', 'steelblue');
 
-//    var xAxisPole = d3.svg.axis().scale(scaleX).ticks(4).tickSize(function (d) {
-//        return -scaleY(d);
-//    });
-//
-//    chart.append("g")
-//        .attr("transform", "translate(50," + (chartHeight + 20) + ")")
-//        .call(xAxisPole)
+    //    var xAxisPole = d3.svg.axis().scale(scaleX).ticks(4).tickSize(function (d) {
+    //        return -scaleY(d);
+    //    });
+    //
+    //    chart.append("g")
+    //        .attr("transform", "translate(50," + (chartHeight + 20) + ")")
+    //        .call(xAxisPole)
 }
 
-function calculateLine(protos, arrayData, index) {
+function calculateLine(protos, arrayData, index, numberOfBoxAtSide) {
     var lineString = "";
 
     var numberOfFeature = protos[0].length;
     var totalBox = protos.length;
-    var numberOfBoxAtSide = Math.round(Math.sqrt(totalBox));
 
     var boxSize = 60;
     var gridMargin = 30;
@@ -87,12 +86,18 @@ function calculateLine(protos, arrayData, index) {
     return lineString;
 }
 
-function drawLineChart(protos, cards, titles) {
+function drawLineChart(protos, cards, titles, gridHeightBox, gridWidthBox) {
     var cards = cards;
 
     var numberOfFeature = protos[0].length;
     var totalBox = protos.length;
-    var numberOfBoxAtSide = Math.round(Math.sqrt(totalBox));
+    //    var numberOfBoxAtSide = Math.round(Math.sqrt(totalBox));
+
+    if (gridHeightBox > gridWidthBox) {
+        var numberOfBoxAtSide = gridHeightBox;
+    } else {
+        var numberOfBoxAtSide = gridWidthBox;
+    }
 
     var boxSize = 60;
     var gridMargin = 30;
@@ -122,14 +127,6 @@ function drawLineChart(protos, cards, titles) {
         .style("fill", "rgba(255,255,255,0.25)");
 
     //Draw Chart in each grid
-    var line = d3.svg.line()
-        .x(function (d, i) {
-            return scaleX(i) + ((i % numberOfBoxAtSide) * boxSize) + 1;
-        })
-        .y(function (d, i) {
-            return (chartHeight - scaleY(d)) + ((Math.floor(i / numberOfBoxAtSide)) * boxSize) + 5 + gridMargin;
-        });
-
     grid.selectAll("g").data(protos).enter().append("g")
         .attr('data-array', function (d, i) {
             return d;
@@ -156,7 +153,7 @@ function drawLineChart(protos, cards, titles) {
         })
         .append("path")
         .attr('d', function (d, i) {
-            return calculateLine(protos, d, i);
+            return calculateLine(protos, d, i, numberOfBoxAtSide);
         })
         .attr('fill', 'none').attr('stroke-width', 3).attr('stroke', 'steelblue');
 }

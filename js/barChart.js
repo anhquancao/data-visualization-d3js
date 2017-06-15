@@ -66,12 +66,17 @@ function barChartOnClick(data, titles) {
         });
 }
 
-function drawBarChart(protos, cards, titles) {
+function drawBarChart(protos, cards, titles, gridHeightBox, gridWidthBox) {
     var cards = cards;
 
     var numberOfFeature = protos[0].length;
     var totalBox = protos.length;
-    var numberOfBoxAtSide = Math.round(Math.sqrt(totalBox));
+    //    var numberOfBoxAtSide = Math.round(Math.sqrt(totalBox));
+    if (gridHeightBox > gridWidthBox) {
+        var numberOfBoxAtSide = gridHeightBox;
+    } else {
+        var numberOfBoxAtSide = gridWidthBox;
+    }
 
     var boxSize = 60;
     var gridMargin = 30;
@@ -92,6 +97,43 @@ function drawBarChart(protos, cards, titles) {
     }
 
     var scale = d3.scale.linear().domain([0, maxValue]).range([0, chartHeight]);
+
+
+    //Draw Legend
+
+    var legendLeftMargin = 50;
+    var legend = d3.selectAll("#chart").append("svg").attr("height", numberOfFeature * (15 + numberOfFeature) + 20).attr("width", gridWidth);
+
+    legend.append("text")
+        .attr('x', 0)
+        .attr('y', 15)
+        .attr('fill', 'black')
+        .text('LEGEND');
+
+    legend.selectAll("empty")
+        .data(protos[0])
+        .enter()
+        .append("rect")
+        .attr("height", "13")
+        .attr("width", "50")
+        .attr("x", legendLeftMargin + 30)
+        .attr("y", function (d, i) {
+            return (i * 15) + 20;
+        })
+        .style("fill", function (d, i) {
+            return getColorForBarChart(i, numberOfFeature);
+        });
+
+
+    legend.selectAll("empty").data(titles).enter().append('text')
+        .attr('x', 10)
+        .attr('y', function (d, i) {
+            return (15 * i) + 12 + 20;
+        })
+        .attr('fill', 'black')
+        .text(function (d) {
+            return d + ":";
+        });
 
     //Draw Grid    
     var grid = d3.selectAll("#chart").append("svg").attr("height", gridHeight + 50).attr("width", gridWidth);
@@ -143,41 +185,4 @@ function drawBarChart(protos, cards, titles) {
                 return getColorForBarChart(i, numberOfFeature);
             });
     };
-
-    //Draw Legend
-
-    var legendLeftMargin = 50;
-    var legend = d3.selectAll("#chart").append("svg").attr("height", numberOfFeature * (15 + numberOfFeature) + 20).attr("width", gridWidth);
-
-    legend.append("text")
-        .attr('x', 0)
-        .attr('y', 15)
-        .attr('fill', 'black')
-        .text('LEGEND');
-
-    legend.selectAll("empty")
-        .data(protos[0])
-        .enter()
-        .append("rect")
-        .attr("height", "13")
-        .attr("width", "50")
-        .attr("x", legendLeftMargin + 30)
-        .attr("y", function (d, i) {
-            return (i * 15) + 20;
-        })
-        .style("fill", function (d, i) {
-            return getColorForBarChart(i, numberOfFeature);
-        });
-
-
-    legend.selectAll("empty").data(titles).enter().append('text')
-        .attr('x', 10)
-        .attr('y', function (d, i) {
-            return (15 * i) + 12 + 20;
-        })
-        .attr('fill', 'black')
-        .text(function (d) {
-            return d + ":";
-        });
-
 }

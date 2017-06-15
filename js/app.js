@@ -51,8 +51,8 @@ function showInput(value) {
             $('#i-card').show();
             $('#i-title').show();
             $('#i-color').hide();
-            $('#i-width').hide();
-            $('#i-height').hide();
+            $('#i-width').show();
+            $('#i-height').show();
             $("#i-more").show();
             break;
         case "pie":
@@ -69,8 +69,8 @@ function showInput(value) {
             $('#i-card').show();
             $('#i-title').show();
             $('#i-color').hide();
-            $('#i-width').hide();
-            $('#i-height').hide();
+            $('#i-width').show();
+            $('#i-height').show();
             $("#i-more").show();
             break;
         default:
@@ -145,25 +145,24 @@ function draw() {
                 let color = hexToRgb($('#color').val());
 
                 //Handle Draw Chart
-                switch (chartType) {
-                    case "color":
-                        if (gridHeight * gridWidth < protos.length) {
-                            alert('gridHeight * gridWidth must be bigger than the number of prototypes');
-                        } else {
+                if (gridHeight * gridWidth < protos.length) {
+                    alert('gridHeight * gridWidth must be bigger than the number of prototypes');
+                } else {
+                    switch (chartType) {
+                        case "color":
                             drawColorsMap(protos, cards, color, titles, gridHeight, gridWidth);
-                        }
-                        break;
-                    case "bar":
-                        drawBarChart(protos, cards, titles);
-                        break;
-                    case "pie":
-                        drawPieChart(protos, cards, titles, gridHeight, gridWidth);
-                        break;
-                    case "line":
-                        drawLineChart(protos, cards, titles);
-                        break;
+                            break;
+                        case "bar":
+                            drawBarChart(protos, cards, titles, gridHeight, gridWidth);
+                            break;
+                        case "pie":
+                            drawPieChart(protos, cards, titles, gridHeight, gridWidth);
+                            break;
+                        case "line":
+                            drawLineChart(protos, cards, titles, gridHeight, gridWidth);
+                            break;
+                    }
                 }
-
 
                 //Handle Additional Information
                 if (document.getElementById("i-mean").checked) {
