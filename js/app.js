@@ -107,12 +107,61 @@ function median(data) {
     return d3.median(data);
 };
 
+var protos = [];
+var cards = [];
+var titles = [];
+var datasets = [];
+var color = "";
+var featureFilter = [];
+var chartType = "";
+var gridWidth = 0;
+var gridHeight = 0;
+
+function filter() {
+    for (let i = 0; i < featureFilter.length; i++) {
+        let filterId = "filter" + i;
+        featureFilter[i] = document.getElementById("filter" + i).checked;
+    }
+
+    //Handle Filter Feature
+    var updateProtos = protos.map(function (data) {
+        var returnArray = [];
+        for (i = 0; i < featureFilter.length; i++) {
+            if (featureFilter[i]) {
+                returnArray.push(data[i]);
+            }
+        }
+        return returnArray;
+    });
+
+    var updateTitles = titles.filter(function (data, index) {
+        return featureFilter[index];
+    });
+
+    $("#chart").html("");
+    switch (chartType) {
+        case "color":
+            drawColorsMap(updateProtos, cards, color, updateTitles, gridHeight, gridWidth);
+            break;
+        case "bar":
+            drawBarChart(updateProtos, cards, updateTitles, gridHeight, gridWidth);
+            break;
+        case "pie":
+            drawPieChart(updateProtos, cards, updateTitles, gridHeight, gridWidth);
+            break;
+        case "line":
+            drawLineChart(updateProtos, cards, updateTitles, gridHeight, gridWidth);
+            break;
+    }
+}
+
 function draw() {
     $("#chart").html("");
     $("#addition").html("");
-    let chartType = $("#chartType").val();
-    let gridWidth = $('#gridWidth').val();
-    let gridHeight = $('#gridHeight').val();
+    $("#filter").html("");
+    chartType = $("#chartType").val();
+    gridWidth = $('#gridWidth').val();
+    gridHeight = $('#gridHeight').val();
 
     let protoStr = '';
     let cardStr = '';
@@ -123,10 +172,11 @@ function draw() {
             readAsync('card').then((content) => {
                 cardStr = content;
 
-                let protos = protoStr.split('\n').filter(e => e !== '').map(p => p.split(','));
-                let cards = cardStr.split('\n').filter(e => e !== '').map(p => p.split(','));
-                let titles = [];
-                let datasets = [];
+                protos = protoStr.split('\n').filter(e => e !== '').map(p => p.split(','));
+
+                protos.splice(0, 1);
+                cards = cardStr.split('\n').filter(e => e !== '').map(p => p.split(','));
+                color = hexToRgb($('#color').val());
 
                 if (titleString) {
                     titles = titleString.split('\n').filter(e => e !== '').map(p => p.split(','));
@@ -142,7 +192,18 @@ function draw() {
                     });
                 }
 
-                let color = hexToRgb($('#color').val());
+                //Append Feature Filter
+                featureFilter = Array(protos[0].length).fill(true);
+                $("#filter").append("<h2>Feature Filter</h2>");
+                for (i = 0; i < featureFilter.length; i++) {
+                    if (featureFilter[i]) {
+                        $("#filter").append("<div class = 'checkbox'><label><input type = 'checkbox' id='filter" + i + "' value='" + titles[i] + "' checked>" + titles[i] + "</label></div>");
+                    } else {
+                        $("#filter").append("<div class = 'checkbox'><label><input type = 'checkbox' id='filter" + i + "' value='" + titles[i] + "'>" + titles[i] + "</label></div>");
+                    }
+                }
+                $("#filter").append("<div class='form-group'><button onclick='filter()' type='button' class='btn btn-primary'>Filter</button></div>");
+
 
                 //Handle Draw Chart
                 if (gridHeight * gridWidth < protos.length) {
@@ -172,6 +233,10 @@ function draw() {
                         meanArray.push(mean(datasets.map(d => d[i])));
                     }
 
+                    meanArray = meanArray.filter(function (data, index) {
+                        return featureFilter[index] == 1;
+                    });
+
                     $("#addition").append("<h3>Mean</h3>");
 
                     for (i = 0; i < meanArray.length; i++) {
@@ -194,6 +259,10 @@ function draw() {
 
                     $("#addition").append("<h3>Median</h3>");
 
+                    medianArray = medianArray.filter(function (data, index) {
+                        return featureFilter[index] == 1;
+                    });
+
                     for (i = 0; i < medianArray.length; i++) {
                         if (titles) {
                             $("#addition").append("<b>" + titles[i] + "</b>: " + medianArray[i] + "<br>");
@@ -209,6 +278,10 @@ function draw() {
                     for (i = 0; i < datasets[0].length; i++) {
                         sdArray.push(standardDeviation(datasets.map(d => d[i])));
                     }
+
+                    sdArray = sdArray.filter(function (data, index) {
+                        return featureFilter[index] == 1;
+                    });
 
                     $("#addition").append("<h3>Standard Deviation</h3>");
 
@@ -231,6 +304,10 @@ function draw() {
                     }
 
                     $("#addition").append("<h3>Min and Max</h3>");
+
+                    minMaxArray = minMaxArray.filter(function (data, index) {
+                        return featureFilter[index] == 1;
+                    });
 
                     for (i = 0; i < minMaxArray.length; i++) {
                         if (titles) {

@@ -99,6 +99,59 @@ function drawBarChart(protos, cards, titles, gridHeightBox, gridWidthBox) {
     var scale = d3.scale.linear().domain([0, maxValue]).range([0, chartHeight]);
 
 
+
+    //Draw Grid    
+    var grid = d3.selectAll("#chart").append("svg").attr("height", gridHeight + 50).attr("width", gridWidth);
+
+    grid.append("text").attr("x", "10").attr("y", "20").text("Bar Chart").style("color", "black");
+
+    grid.selectAll("rect")
+        .data(protos)
+        .enter()
+        .append("rect")
+        .attr("height", boxSize)
+        .attr("width", boxSize)
+        .attr("x", function (d, i) {
+            return (i % numberOfBoxAtSide) * boxSize;
+        })
+        .attr("y", function (d, i) {
+            return (Math.floor(i / numberOfBoxAtSide)) * boxSize + gridMargin;
+        })
+        .style("stroke", "#000")
+        .style("fill", "rgba(255,255,255,0.25)");
+
+    //Draw Bar Chart in each grid
+    var barWidth = (boxSize - 6) / numberOfFeature;
+    for (index = 0; index < totalBox; index++) {
+        grid.append("g")
+            .attr('data-array', convertArrayForDataAttr(protos[index]))
+            .attr('data-titles', convertArrayForDataAttr(titles))
+            .on({
+                "click": function () {
+                    var data = convertDataAttrToArray(this.dataset.array);
+                    var titles = convertDataAttrToArray(this.dataset.titles);
+                    barChartOnClick(data, titles);
+                }
+            })
+            .selectAll("empty")
+            .data(protos[index])
+            .enter()
+            .append("rect")
+            .attr("height", function (d) {
+                return scale(d);
+            })
+            .attr("width", barWidth)
+            .attr("x", function (d, i) {
+                return ((i * barWidth)) + ((index % numberOfBoxAtSide) * boxSize) + 1;
+            })
+            .attr("y", function (d) {
+                return (chartHeight - scale(d)) + ((Math.floor(index / numberOfBoxAtSide)) * boxSize) + 5 + gridMargin;
+            })
+            .style("fill", function (d, i) {
+                return getColorForBarChart(i, numberOfFeature);
+            });
+    };
+
     //Draw Legend
 
     var legendLeftMargin = 50;
@@ -135,54 +188,4 @@ function drawBarChart(protos, cards, titles, gridHeightBox, gridWidthBox) {
             return d + ":";
         });
 
-    //Draw Grid    
-    var grid = d3.selectAll("#chart").append("svg").attr("height", gridHeight + 50).attr("width", gridWidth);
-
-    grid.append("text").attr("x", "10").attr("y", "20").text("Bar Chart").style("color", "black");
-
-    grid.selectAll("rect")
-        .data(protos)
-        .enter()
-        .append("rect")
-        .attr("height", boxSize)
-        .attr("width", boxSize)
-        .attr("x", function (d, i) {
-            return (i % numberOfBoxAtSide) * boxSize;
-        })
-        .attr("y", function (d, i) {
-            return (Math.floor(i / numberOfBoxAtSide)) * boxSize + gridMargin;
-        })
-        .style("stroke", "#000")
-        .style("fill", "rgba(255,255,255,0.25)");
-
-    //Draw Bar Chart in each grid
-    for (index = 0; index < totalBox; index++) {
-        grid.append("g")
-            .attr('data-array', convertArrayForDataAttr(protos[index]))
-            .attr('data-titles', convertArrayForDataAttr(titles))
-            .on({
-                "click": function () {
-                    var data = convertDataAttrToArray(this.dataset.array);
-                    var titles = convertDataAttrToArray(this.dataset.titles);
-                    barChartOnClick(data, titles);
-                }
-            })
-            .selectAll("empty")
-            .data(protos[index])
-            .enter()
-            .append("rect")
-            .attr("height", function (d) {
-                return scale(d);
-            })
-            .attr("width", (boxSize - 6) / numberOfFeature)
-            .attr("x", function (d, i) {
-                return ((i * 15)) + ((index % numberOfBoxAtSide) * boxSize) + 1;
-            })
-            .attr("y", function (d) {
-                return (chartHeight - scale(d)) + ((Math.floor(index / numberOfBoxAtSide)) * boxSize) + 5 + gridMargin;
-            })
-            .style("fill", function (d, i) {
-                return getColorForBarChart(i, numberOfFeature);
-            });
-    };
 }
