@@ -173,9 +173,11 @@ function draw() {
                 cardStr = content;
 
                 protos = protoStr.split('\n').filter(e => e !== '').map(p => p.split(','));
-
                 protos.splice(0, 1);
+
                 cards = cardStr.split('\n').filter(e => e !== '').map(p => p.split(','));
+                cards.splice(0, 1)
+
                 color = hexToRgb($('#color').val());
 
                 if (titleString) {
